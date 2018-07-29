@@ -1,0 +1,33 @@
+# Build directories
+[Bb]uild/
+[Dd]ebug/
+[Rr]elease/
+[Oo]bj/
+[Bb]in/
+
+# Binary files or archive files
+*.exe
+*.dll
+*.so
+*.lib
+*.rar
+*.zip
+*.7z
+*.tar
+*.tar.gz
+*.aps
+# Except for third-party binary libs
+!/third-party/**/bin/
+!/third-party/**/bin/**
+!/third-party/**/lib/
+!/third-party/**/lib/**
+!/third-party/**/[Bb]uild/
+!/third-party/**/[Bb]uild/**
+
+# resources
+*.patch
+*.result
+
+# vs code
+.vscode/
+.vs/

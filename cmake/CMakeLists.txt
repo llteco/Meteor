@@ -1,0 +1,28 @@
+
+cmake_minimum_required(VERSION 3.5.1)
+
+# enable folder scope in ide
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
+
+include(msvc_helper)
+
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+  set(ABI x64)
+else()
+  set(ABI x32)
+endif()
+message(STATUS "Compiling on ${ABI}")
+
+enable_compile_flag_mt()
+enable_unicode_charactor()
+if(MSVC)
+  set_msvc_warning_level(4)
+endif(MSVC)
+
+set(PROJECT_ROOT_DIR ${CMAKE_SOURCE_DIR}/../)
+include_directories(${PROJECT_ROOT_DIR})
+
+include(imgui)
+include(meteor)
+include(graphic)
