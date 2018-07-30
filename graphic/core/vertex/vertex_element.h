@@ -21,6 +21,7 @@ enum VertexElementType {
   VET_UINT1 = 21, /**< 1D 32-bit signed integer value */
   VET_UINT2 = 22, /**< 2D 32-bit signed integer value */
   VET_UINT3 = 23, /**< 3D 32-bit signed integer value */
+  VET_UCHAR4 = 28, /**< R8G8B8A8 color value */
   VET_UNKNOWN = 0xffff
 };
 

@@ -46,6 +46,8 @@ DXGI_FORMAT ToDxgiFormat(VertexElementType type) {
       return DXGI_FORMAT_R32G32_UINT;
     case VET_UINT3:
       return DXGI_FORMAT_R32G32B32_UINT;
+    case VET_UCHAR4:
+      return DXGI_FORMAT_R8G8B8A8_UNORM;
     case VET_UNKNOWN:
     default:
       return DXGI_FORMAT_UNKNOWN;

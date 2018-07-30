@@ -84,7 +84,7 @@ Dx11GpuBufferMapData::~Dx11GpuBufferMapData() {
 
 void Dx11GpuBufferMapData::UpdateFromRawData(const void *src, uint32_t offset,
                                              uint32_t length) {
-  memcpy_s(static_cast<char *>(data_.pData) + offset, data_.RowPitch - offset,
+  memcpy_s(static_cast<char *>(data_.pData) + offset, data_.RowPitch,
            src, length);
 }
 }  // namespace dx11

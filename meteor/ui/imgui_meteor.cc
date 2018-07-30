@@ -90,7 +90,7 @@ bool ImGui_ImplDX11_CreateDeviceObjects(Env* env, core::Renderer* rd) {
   vs->Compile(vertexShader, strlen(vertexShader), SHADER_TARGET_VERTEX);
   ps->Compile(pixelShader, strlen(pixelShader), SHADER_TARGET_PIXEL);
   core::VertexElement v1("POSITION", VET_FLOAT2), v2("TEXCOORD", VET_FLOAT2),
-      v3("COLOR", VET_UINT3);
+      v3("COLOR", VET_UCHAR4);
   rd->SetInputLayout({v1, v2, v3}, vs);
   rd->SetShader(vs);
   rd->SetShader(ps);
@@ -238,14 +238,17 @@ void ImGui_ImplDX11_RenderDrawData(ImDrawData* draw_data, Env* env,
   {
     auto vtx = g_pVB->Map();
     auto idx = g_pIB->Map();
+    UINT32 byte_offset[2]{};
     for (int n = 0; n < draw_data->CmdListsCount; n++) {
       const ImDrawList* cmd_list = draw_data->CmdLists[n];
       vtx->UpdateFromRawData(cmd_list->VtxBuffer.Data,
-                             n * cmd_list->VtxBuffer.Size,
+                             byte_offset[0],
                              cmd_list->VtxBuffer.Size * sizeof(ImDrawVert));
       idx->UpdateFromRawData(cmd_list->IdxBuffer.Data,
-                             n * cmd_list->IdxBuffer.Size,
+                             byte_offset[1],
                              cmd_list->IdxBuffer.Size * sizeof(ImDrawIdx));
+      byte_offset[0] += cmd_list->VtxBuffer.Size * sizeof(ImDrawVert);
+      byte_offset[1] += cmd_list->IdxBuffer.Size * sizeof(ImDrawIdx);
     }
   }
   float L = 0.0f;
