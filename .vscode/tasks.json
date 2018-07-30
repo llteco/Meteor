@@ -1,0 +1,40 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "guard",
+            "type": "shell",
+            "command": "python",
+            "args": [
+                "${workspaceRoot}/third-party/protect_header.py",
+                "--prefix=",
+                "--root=${workspaceRoot}",
+                "${fileDirname}"
+            ],
+            "group": "none",
+            "presentation": {
+                "reveal": "never"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "cpplint",
+            "type": "shell",
+            "command": "cpplint",
+            "args": [
+                "--output=vs7",
+                "--linelength=80",
+                "--exclude=Build,config.h",
+                "--filter=-build/header_guard,-build/c++11,-build/c++14",
+                "${file}"
+            ],
+            "group": "none",
+            "presentation": {
+                "reveal": "always"
+            },
+            "problemMatcher": []
+        }
+    ]
+}

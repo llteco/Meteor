@@ -1,0 +1,6 @@
+{
+    "clang-format.executable": "${workspaceRoot}/third-party/clang-format",
+    "clang-format.style": "Google",
+    "C_Cpp.clang_format_path": "${workspaceRoot}/third-party/clang-format",
+    "C_Cpp.clang_format_style": "Google"
+}

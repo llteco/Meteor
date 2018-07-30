@@ -52,6 +52,7 @@ int main() {
   ImageViewerArgs iv{};
   ImageViewerInfo ivr;
   iv.enable = true;
+  iv.max_frame = 1000;
   iv.window_flag = ImGuiWindowFlags_NoMove |
     ImGuiWindowFlags_NoCollapse |
     ImGuiWindowFlags_NoTitleBar |
@@ -85,6 +86,9 @@ int main() {
     ic.parent_size = tbr.size;
     if (iv.enable) {
       ivr = ImageViewer(iv);
+      if (ivr.toggle_open) {
+        iv.tex_id = ImGui::GetIO().Fonts->TexID;
+      }
       sb.parent_pos = ivr.pos;
       sb.parent_size = ivr.size;
     }

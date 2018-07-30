@@ -10,6 +10,7 @@ StatusBarInfo StatusBar(const StatusBarArgs &args) {
   ret_info.size.y = 50;
   ImGui::SetWindowPos(ret_info.pos, ImGuiCond_Always);
   ImGui::SetWindowSize(ret_info.size, ImGuiCond_Always);
+
   ImGui::End();
   return ret_info;
 }

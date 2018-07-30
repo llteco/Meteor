@@ -19,9 +19,11 @@ TitleBarInfo TitleBar(const TitleBarArgs &args);
 struct ImageViewerInfo {
   ImVec2 pos;
   ImVec2 size;
+  bool toggle_open;
   char path[512];
   int format_id;
   int image_size[2];
+  int frame_num;
 };
 
 struct ImageViewerArgs {
@@ -29,6 +31,8 @@ struct ImageViewerArgs {
   uint32_t window_flag;
   ImVec2 parent_pos;
   ImVec2 parent_size;
+  int max_frame;
+  ImTextureID tex_id;
 };
 
 ImageViewerInfo ImageViewer(const ImageViewerArgs &args);
