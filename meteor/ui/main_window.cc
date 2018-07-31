@@ -5,6 +5,8 @@
 
 using namespace ixr;
 
+std::string OnButtonOpenFile() { return ""; }
+
 engine::window::Window *CreateUIWindow(engine::Env *env) {
   engine::WindowDesc wd{
       "MeteorViewer", engine::WINDOW_STYLE_DEFAULT, 1000, 800, 0, 0};

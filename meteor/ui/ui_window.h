@@ -20,10 +20,17 @@ struct ImageViewerInfo {
   ImVec2 pos;
   ImVec2 size;
   bool toggle_open;
-  char path[512];
+  bool toggle_run;
+  bool toggle_prev;
+  bool toggle_next;
+  bool toggle_jump;
+  bool toggle_refresh;
+  std::string path;
   int format_id;
   int image_size[2];
+  float image_pos_uv[4];
   int frame_num;
+  float scale;
 };
 
 struct ImageViewerArgs {
