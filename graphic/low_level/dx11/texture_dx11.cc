@@ -164,6 +164,7 @@ void Dx11Texture::CreateTexture(TextureDesc desc) {
       } else {
         hr = dev->CreateTexture2D(&td, nullptr, &tex2d_);
       }
+      THROW_IF_FAIL(FAILED(hr), "Fail to create texture");
       tex2d_.As(&resource_);
       tex2d_->GetDesc(&desc2d_);
       break;
@@ -171,7 +172,6 @@ void Dx11Texture::CreateTexture(TextureDesc desc) {
     case TEXTURE_TYPE_3D:
       break;
   }
-  THROW_IF_FAIL(FAILED(hr), "Fail to create texture");
 }
 
 void Dx11Texture::CreateReferenceFrom(Handle texture, TextureType type) {

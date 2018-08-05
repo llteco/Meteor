@@ -2,10 +2,13 @@
 #include "imgui/imgui.h"
 #include "imgui_meteor.h"
 #include "meteor/ui/ui_window.h"
+#include "meteor/ui/windows_dialog.h"
 
 using namespace ixr;
 
-std::string OnButtonOpenFile() { return ""; }
+std::string OnButtonOpenFile() { 
+  return ixr::utils::CallOpenFileDialog();
+}
 
 engine::window::Window *CreateUIWindow(engine::Env *env) {
   engine::WindowDesc wd{
@@ -88,9 +91,7 @@ int main() {
     ic.parent_size = tbr.size;
     if (iv.enable) {
       ivr = ImageViewer(iv);
-      if (ivr.toggle_open) {
-        iv.tex_id = ImGui::GetIO().Fonts->TexID;
-      }
+      ImageViewerBehave(env, ui_renderer, ivr, &iv);
       sb.parent_pos = ivr.pos;
       sb.parent_size = ivr.size;
     }

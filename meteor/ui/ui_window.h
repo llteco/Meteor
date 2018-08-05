@@ -1,5 +1,13 @@
+#ifndef METEOR_UI_UI_WINDOW_H_
+#define METEOR_UI_UI_WINDOW_H_
 #include <string>
+#include "graphic/engine/engine.h"
 #include "imgui/imgui.h"
+
+
+constexpr char *kSupportedFormats[] = {
+    "Decoder", "RGBA", "YUV", "NV12", "YV12",
+};
 
 struct TitleBarInfo {
   bool image_view;
@@ -14,7 +22,6 @@ struct TitleBarArgs {
 };
 
 TitleBarInfo TitleBar(const TitleBarArgs &args);
-
 
 struct ImageViewerInfo {
   ImVec2 pos;
@@ -44,6 +51,9 @@ struct ImageViewerArgs {
 
 ImageViewerInfo ImageViewer(const ImageViewerArgs &args);
 
+void ImageViewerBehave(ixr::engine::Env *e, ixr::engine::core::Renderer *r,
+                       const ImageViewerInfo &info, ImageViewerArgs *args);
+
 struct ImageCompareInfo {
   ImVec2 pos;
   ImVec2 size;
@@ -70,4 +80,4 @@ struct StatusBarArgs {
 };
 
 StatusBarInfo StatusBar(const StatusBarArgs &args);
-
+#endif  // METEOR_UI_UI_WINDOW_H_

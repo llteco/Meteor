@@ -1,9 +1,5 @@
 #include "meteor/ui/ui_window.h"
 
-const char *kSupportedFormats[] = {
-  "RGBA", "YUV", "NV12", "YV12",
-};
-
 extern std::string OnButtonOpenFile();
 
 ImageViewerInfo ImageViewer(const ImageViewerArgs &args) {
@@ -35,7 +31,7 @@ ImageViewerInfo ImageViewer(const ImageViewerArgs &args) {
   float w3 = ret_info.size.x * 0.113f;
   ImGui::PushItemWidth(w3);
   if (ImGui::BeginCombo("Format", kSupportedFormats[ret_info.format_id])) {
-    for (int n = 0; n < 4; n++) {
+    for (int n = 0; n < IM_ARRAYSIZE(kSupportedFormats); n++) {
       bool is_selected = false;
       if (ImGui::Selectable(kSupportedFormats[n], is_selected))
         ret_info.format_id = n;
@@ -61,6 +57,11 @@ ImageViewerInfo ImageViewer(const ImageViewerArgs &args) {
   ret_info.toggle_next = ImGui::Button("N", ImVec2{ 20,20 });
   if (ImGui::IsItemHovered()) {
     ImGui::SetTooltip("Next frame");
+  }
+  if (ret_info.toggle_prev) {
+    ret_info.frame_num--;
+  } else if (ret_info.toggle_next) {
+    ret_info.frame_num++;
   }
   ImGui::SameLine();
   ret_info.toggle_jump = 
