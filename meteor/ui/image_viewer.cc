@@ -30,11 +30,15 @@ ImageViewerInfo ImageViewer(const ImageViewerArgs &args) {
   ImGui::PopItemWidth();
   float w3 = ret_info.size.x * 0.113f;
   ImGui::PushItemWidth(w3);
+  ret_info.toggle_format_change = false;
   if (ImGui::BeginCombo("Format", kSupportedFormats[ret_info.format_id])) {
     for (int n = 0; n < IM_ARRAYSIZE(kSupportedFormats); n++) {
       bool is_selected = false;
-      if (ImGui::Selectable(kSupportedFormats[n], is_selected))
+      if (ImGui::Selectable(kSupportedFormats[n], is_selected)) {
+        if (n != ret_info.format_id)
+          ret_info.toggle_format_change = true;
         ret_info.format_id = n;
+      }
       if (is_selected)
         ImGui::SetItemDefaultFocus();
     }
@@ -59,13 +63,13 @@ ImageViewerInfo ImageViewer(const ImageViewerArgs &args) {
     ImGui::SetTooltip("Next frame");
   }
   if (ret_info.toggle_prev) {
-    ret_info.frame_num--;
+    if (ret_info.frame_num > 0) ret_info.frame_num--;
   } else if (ret_info.toggle_next) {
-    ret_info.frame_num++;
+    if (ret_info.frame_num < args.max_frame - 1) ret_info.frame_num++;
   }
   ImGui::SameLine();
   ret_info.toggle_jump = 
-    ImGui::SliderInt("Frames", &ret_info.frame_num, 0, args.max_frame);
+    ImGui::SliderInt("Frames", &ret_info.frame_num, 0, args.max_frame - 1);
   if (ImGui::IsItemHovered()) {
     ImGui::SetTooltip("Goto");
   }
@@ -83,6 +87,7 @@ ImageViewerInfo ImageViewer(const ImageViewerArgs &args) {
     auto pos = ImGui::GetCursorScreenPos();
     ImGui::Image(args.tex_id, tex_sz, uv0, uv1);
     if (ImGui::IsItemHovered()) {
+      // TODO
       ImGui::BeginTooltip();
       float region_sz = 32.0f;
       float region_x = io.MousePos.x - pos.x - region_sz * 0.5f;

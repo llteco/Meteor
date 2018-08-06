@@ -205,8 +205,8 @@ void ImGui_ImplDX11_NewFrame(void* hwnd) {
   ImGui::NewFrame();
 }
 
-static UINT g_VertexBufferSize = 5000;
-static UINT g_IndexBufferSize = 10000;
+static int g_VertexBufferSize = 5000;
+static int g_IndexBufferSize = 10000;
 static core::GpuBuffer *g_pVB, *g_pIB;
 
 void ImGui_ImplDX11_RenderDrawData(ImDrawData* draw_data, Env* env,

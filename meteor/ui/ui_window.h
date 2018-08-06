@@ -8,6 +8,7 @@
 constexpr char *kSupportedFormats[] = {
     "Decoder", "RGBA", "YUV", "NV12", "YV12",
 };
+enum { RGBA = 1, YUV, NV12, YV12 };
 
 struct TitleBarInfo {
   bool image_view;
@@ -32,6 +33,7 @@ struct ImageViewerInfo {
   bool toggle_next;
   bool toggle_jump;
   bool toggle_refresh;
+  bool toggle_format_change;
   std::string path;
   int format_id;
   int image_size[2];
@@ -77,6 +79,9 @@ struct StatusBarArgs {
   uint32_t window_flag;
   ImVec2 parent_pos;
   ImVec2 parent_size;
+  std::string image_name;
+  ImVec2 cursor_coord;
+  float rgb_value[3];
 };
 
 StatusBarInfo StatusBar(const StatusBarArgs &args);

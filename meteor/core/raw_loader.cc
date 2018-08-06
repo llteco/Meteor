@@ -8,17 +8,22 @@ RawLoader::RawLoader(std::string path, float cbytes, int width, int height)
 RawLoader::~RawLoader() {}
 
 void RawLoader::Change(float cbytes, int width, int height) {
-  frame_size_ = width * height * cbytes;
+  frame_size_ = static_cast<int>(width * height * cbytes);
+  if (frame_size_ == 0) {
+    throw std::runtime_error("Frame size equals 0!");
+  }
   size_[0] = width;
   size_[1] = height;
   fp_.seekg(0);
 }
 
 int RawLoader::Tellg() {
-  return fp_.tellg() / frame_size_;
+  auto pos = fp_.tellg() / frame_size_;
+  return static_cast<int>(pos);
 }
 
 void RawLoader::Seekg(int n_frames) {
+  fp_.clear();
   int pos = n_frames * frame_size_;
   fp_.seekg(pos, std::ios::beg);
 }
@@ -28,11 +33,11 @@ std::vector<int> RawLoader::Size() {
 }
 
 int RawLoader::Length() {
-  int cur = fp_.tellg();
+  auto cur = fp_.tellg();
   fp_.seekg(0, std::ios::end);
-  int size = fp_.tellg() / frame_size_;
+  auto size = fp_.tellg() / frame_size_;
   fp_.seekg(cur);
-  return size;
+  return static_cast<int>(size);
 }
 
 std::vector<char> RawLoader::ReadF() {
