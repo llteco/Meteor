@@ -36,6 +36,7 @@ struct ImageViewerInfo {
   bool toggle_jump;
   bool toggle_refresh;
   bool toggle_format_change;
+  bool toggle_reset;
   std::string path;
   int format_id;
   int image_size[2];

@@ -182,7 +182,7 @@ void ImageViewerBehave(Env *e, core::Renderer *r, const ImageViewerInfo &info,
     } catch (...) {
     }
   }
-  if (info.toggle_jump | info.toggle_next | info.toggle_prev) {
+  if (info.toggle_jump | info.toggle_next | info.toggle_prev | info.toggle_run) {
     if (g_loader) {
       g_loader->Seekg(info.frame_num);
       auto data = g_loader->ReadF();
