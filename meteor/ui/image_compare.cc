@@ -7,7 +7,8 @@ ImageCompareInfo ImageCompare(const ImageCompareArgs &args) {
   ret_info.pos = args.parent_pos;
   ret_info.pos.y += args.parent_size.y + 1;
   ret_info.size.x = args.parent_size.x;
-  ret_info.size.y = 500;
+  ret_info.size.y =
+      ImGui::GetIO().DisplaySize.y - ret_info.pos.y - kStatusBarHeight - 2;
   ImGui::SetWindowPos(ret_info.pos, ImGuiCond_Always);
   ImGui::SetWindowSize(ret_info.size, ImGuiCond_Always);
   ImGui::End();

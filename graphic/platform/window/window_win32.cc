@@ -6,6 +6,7 @@ Email       : wenyi.tang@intel.com
 Created     : Feb. 28th, 2018
 ********************************************************************/
 #include "platform/window/window_win32.h"
+#include <algorithm>
 
 namespace ixr {
 namespace engine {
@@ -93,6 +94,23 @@ void Win32Window::Show() {
 void Win32Window::Hide() {
   ShowWindow(handle_, SW_HIDE);
   state_ = WINDOW_STATE_MINIMUM;
+}
+
+void Win32Window::SetPos(int x, int y) {
+  SetWindowPos(handle_, NULL, x, y, 0, 0, SWP_NOSIZE);
+}
+
+void Win32Window::Centered() {
+  RECT rect;
+  THROW_IF_FAIL(!GetWindowRect(handle_, &rect), "Fail to get window rect");
+  HDC window_dc = GetWindowDC(handle_);
+  int pixel_w = GetDeviceCaps(window_dc, HORZRES);
+  int pixel_h = GetDeviceCaps(window_dc, VERTRES);
+  int window_w = rect.right - rect.left;
+  int window_h = rect.bottom - rect.top;
+  int center_x = std::max(0, (pixel_w - window_w) >> 1);
+  int center_y = std::max(0, (pixel_h - window_h) >> 1);
+  SetPos(center_x, center_y);
 }
 
 Handle Win32Window::GetHandle() const { return Handle(handle_); }

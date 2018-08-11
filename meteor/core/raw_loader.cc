@@ -28,9 +28,7 @@ void RawLoader::Seekg(int n_frames) {
   fp_.seekg(pos, std::ios::beg);
 }
 
-std::vector<int> RawLoader::Size() {
-  return {size_[0], size_[1]};
-}
+std::vector<int> RawLoader::Size() { return {size_[0], size_[1]}; }
 
 int RawLoader::Length() {
   auto cur = fp_.tellg();

@@ -64,6 +64,9 @@ class Window : public noncopyable, public Object {
   virtual void Show() = 0;
   virtual void Hide() = 0;
 
+  virtual void SetPos(int x, int y) = 0;
+  virtual void Centered() = 0;
+
   virtual Handle GetHandle() const = 0;
 
   virtual WindowState LoopState() = 0;

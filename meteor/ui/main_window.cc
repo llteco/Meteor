@@ -6,9 +6,7 @@
 
 using namespace ixr;
 
-std::string OnButtonOpenFile() { 
-  return ixr::utils::CallOpenFileDialog();
-}
+std::string OnButtonOpenFile() { return ixr::utils::CallOpenFileDialog(); }
 
 engine::window::Window *CreateUIWindow(engine::Env *env) {
   engine::WindowDesc wd{
@@ -39,6 +37,24 @@ int main() {
 
   // Show the window
   window->Show();
+  window->Centered();
+  // Register window resize event
+  engine::WindowEvent we{};
+  we.value[3] = reinterpret_cast<uint64_t>(window->GetHandle());
+  we.type = 0xFFFFFFFF;
+  we.callback = [&](uint32_t id, uint32_t msg, uint64_t *value) {
+    switch (msg) {
+      case WM_SIZE:
+        env->ReleaseObject(swapchain);
+        engine::SwapChainDesc sd;
+        sd.format = engine::PF_RGBA32_UNORM;
+        sd.window_handle = window->GetHandle();
+        swapchain = env->NewSwapChain(sd);
+        rt = swapchain->GetBuffer(0);
+        break;
+    }
+  };
+  window->RegisterEvent(we);
 
   ImGui::CreateContext();
   // Setup ImGui binding
@@ -50,32 +66,26 @@ int main() {
   TitleBarArgs tb{};
   TitleBarInfo tbr;
   tb.name = "Meteor v0.0.0.1";
-  tb.window_flag = ImGuiWindowFlags_NoMove |
-    ImGuiWindowFlags_NoCollapse |
-    ImGuiWindowFlags_NoResize;
+  tb.window_flag = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse |
+                   ImGuiWindowFlags_NoResize;
 
   ImageViewerArgs iv{};
   ImageViewerInfo ivr;
   iv.enable = true;
   iv.max_frame = 1000;
-  iv.window_flag = ImGuiWindowFlags_NoMove |
-    ImGuiWindowFlags_NoCollapse |
-    ImGuiWindowFlags_NoTitleBar |
-    ImGuiWindowFlags_NoResize;
+  iv.window_flag = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse |
+                   ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize;
 
   ImageCompareArgs ic{};
   ImageCompareInfo icr;
   ic.enable = false;
-  ic.window_flag = ImGuiWindowFlags_NoMove |
-    ImGuiWindowFlags_NoCollapse |
-    ImGuiWindowFlags_NoTitleBar |
-    ImGuiWindowFlags_NoResize;
+  ic.window_flag = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse |
+                   ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize;
 
   StatusBarArgs sb{};
-  sb.window_flag = ImGuiWindowFlags_NoMove |
-    ImGuiWindowFlags_NoCollapse |
-    ImGuiWindowFlags_NoTitleBar |
-    ImGuiWindowFlags_NoResize;
+  StatusBarInfo sbr;
+  sb.window_flag = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse |
+                   ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize;
 
   while (window->LoopState() != engine::WINDOW_STATE_HALT) {
     ImGui_ImplDX11_NewFrame(window->GetHandle());
@@ -100,7 +110,7 @@ int main() {
       sb.parent_pos = icr.pos;
       sb.parent_size = icr.size;
     }
-    StatusBar(sb);
+    sbr = StatusBar(sb);
     // ImGui::ShowDemoWindow();
     ImGui::Render();
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData(), env, ui_renderer);

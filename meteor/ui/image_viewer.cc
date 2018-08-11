@@ -10,7 +10,8 @@ ImageViewerInfo ImageViewer(const ImageViewerArgs &args) {
   ret_info.pos = args.parent_pos;
   ret_info.pos.y += args.parent_size.y + 1;
   ret_info.size.x = args.parent_size.x;
-  ret_info.size.y = 500;
+  ret_info.size.y =
+      ImGui::GetIO().DisplaySize.y - ret_info.pos.y - kStatusBarHeight - 2;
   ImGui::SetWindowPos(ret_info.pos, ImGuiCond_Always);
   ImGui::SetWindowSize(ret_info.size, ImGuiCond_Always);
   float w1 = ret_info.size.x * 0.13f;
@@ -35,30 +36,27 @@ ImageViewerInfo ImageViewer(const ImageViewerArgs &args) {
     for (int n = 0; n < IM_ARRAYSIZE(kSupportedFormats); n++) {
       bool is_selected = false;
       if (ImGui::Selectable(kSupportedFormats[n], is_selected)) {
-        if (n != ret_info.format_id)
-          ret_info.toggle_format_change = true;
+        if (n != ret_info.format_id) ret_info.toggle_format_change = true;
         ret_info.format_id = n;
       }
-      if (is_selected)
-        ImGui::SetItemDefaultFocus();
+      if (is_selected) ImGui::SetItemDefaultFocus();
     }
     ImGui::EndCombo();
   }
   ImGui::SameLine();
-  ret_info.toggle_refresh =
-    ImGui::InputInt2("Image Size", ret_info.image_size);
+  ret_info.toggle_refresh = ImGui::InputInt2("Image Size", ret_info.image_size);
   ImGui::SameLine();
-  ret_info.toggle_run = ImGui::Button("R", ImVec2{ 20,20 });
+  ret_info.toggle_run = ImGui::Button("R", ImVec2{20, 20});
   if (ImGui::IsItemHovered()) {
     ImGui::SetTooltip("Run");
   }
   ImGui::SameLine();
-  ret_info.toggle_prev = ImGui::Button("P", ImVec2{ 20,20 });
+  ret_info.toggle_prev = ImGui::Button("P", ImVec2{20, 20});
   if (ImGui::IsItemHovered()) {
     ImGui::SetTooltip("Previous frame");
   }
   ImGui::SameLine();
-  ret_info.toggle_next = ImGui::Button("N", ImVec2{ 20,20 });
+  ret_info.toggle_next = ImGui::Button("N", ImVec2{20, 20});
   if (ImGui::IsItemHovered()) {
     ImGui::SetTooltip("Next frame");
   }
@@ -68,8 +66,8 @@ ImageViewerInfo ImageViewer(const ImageViewerArgs &args) {
     if (ret_info.frame_num < args.max_frame - 1) ret_info.frame_num++;
   }
   ImGui::SameLine();
-  ret_info.toggle_jump = 
-    ImGui::SliderInt("Frames", &ret_info.frame_num, 0, args.max_frame - 1);
+  ret_info.toggle_jump =
+      ImGui::SliderInt("Frames", &ret_info.frame_num, 0, args.max_frame - 1);
   if (ImGui::IsItemHovered()) {
     ImGui::SetTooltip("Goto");
   }
@@ -81,8 +79,8 @@ ImageViewerInfo ImageViewer(const ImageViewerArgs &args) {
     ImVec2 tex_sz, uv0, uv1;
     tex_sz.x = static_cast<float>(ret_info.image_size[0]) * ret_info.scale;
     tex_sz.y = static_cast<float>(ret_info.image_size[1]) * ret_info.scale;
-    uv0 = { ret_info.image_pos_uv[0], ret_info.image_pos_uv[1] };
-    uv1 = { ret_info.image_pos_uv[2], ret_info.image_pos_uv[3] };
+    uv0 = {ret_info.image_pos_uv[0], ret_info.image_pos_uv[1]};
+    uv1 = {ret_info.image_pos_uv[2], ret_info.image_pos_uv[3]};
     auto &io = ImGui::GetIO();
     auto pos = ImGui::GetCursorScreenPos();
     ImGui::Image(args.tex_id, tex_sz, uv0, uv1);
@@ -105,10 +103,8 @@ ImageViewerInfo ImageViewer(const ImageViewerArgs &args) {
       ImVec2 xy0 = ImVec2((region_x) / tex_sz.x, (region_y) / tex_sz.y);
       ImVec2 xy1 = ImVec2((region_x + region_sz) / tex_sz.x,
                           (region_y + region_sz) / tex_sz.y);
-      ImGui::Image(args.tex_id,
-                   ImVec2(region_sz * zoom, region_sz * zoom),
-                   xy0, xy1,
-                   ImColor(255, 255, 255, 255),
+      ImGui::Image(args.tex_id, ImVec2(region_sz * zoom, region_sz * zoom), xy0,
+                   xy1, ImColor(255, 255, 255, 255),
                    ImColor(255, 255, 255, 128));
       ImGui::EndTooltip();
       // use mouse wheel to zoom image

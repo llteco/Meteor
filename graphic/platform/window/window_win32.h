@@ -29,6 +29,9 @@ class Win32Window : public Window {
   virtual void Show() override;
   virtual void Hide() override;
 
+  virtual void SetPos(int x, int y) override;
+  virtual void Centered() override;
+
   virtual Handle GetHandle() const override;
 
   virtual WindowState LoopState() override;

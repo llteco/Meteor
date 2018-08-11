@@ -4,11 +4,13 @@
 #include "graphic/engine/engine.h"
 #include "imgui/imgui.h"
 
-
 constexpr char *kSupportedFormats[] = {
     "Decoder", "RGBA", "YUV", "NV12", "YV12",
 };
 enum { RGBA = 1, YUV, NV12, YV12 };
+
+constexpr float kStatusBarHeight = 50;
+constexpr float kTitleBarHeight = 88;
 
 struct TitleBarInfo {
   bool image_view;

@@ -1,8 +1,9 @@
 #ifndef METEOR_CORE_RAW_LOADER_H_
 #define METEOR_CORE_RAW_LOADER_H_
-#include <string>
 #include <fstream>
+#include <string>
 #include "meteor/core/loader.h"
+
 
 class RawLoader : public Loader {
  public:
