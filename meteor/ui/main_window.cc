@@ -6,7 +6,13 @@
 
 using namespace ixr;
 
-std::string OnButtonOpenFile() { return ixr::utils::CallOpenFileDialog(); }
+std::string OnButtonOpenFile(std::string pth) {
+  return ixr::utils::CallOpenFileDialog(pth);
+}
+
+std::vector<std::string> OnButtonOpenFile() {
+  return ixr::utils::CallOpenMultipleFileDialog();
+}
 
 engine::window::Window *CreateUIWindow(engine::Env *env) {
   engine::WindowDesc wd{
@@ -107,6 +113,7 @@ int main() {
     }
     if (ic.enable) {
       icr = ImageCompare(ic);
+      ImageCompareBehave(env, ui_renderer, icr, &ic);
       sb.parent_pos = icr.pos;
       sb.parent_size = icr.size;
     }

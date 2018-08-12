@@ -6,9 +6,6 @@
 
 using namespace ixr::engine;
 
-std::unique_ptr<Loader> g_loader;
-std::unique_ptr<TexPool> g_texpool;
-
 inline float ColorBytes(int cmode) {
   std::string fmt = kSupportedFormats[cmode];
   switch (cmode) {
@@ -163,6 +160,8 @@ inline char *ToRGBA(std::vector<char> &data, int cmode, int w, int h) {
 
 void ImageViewerBehave(Env *e, core::Renderer *r, const ImageViewerInfo &info,
                        ImageViewerArgs *args) {
+  static std::unique_ptr<Loader> g_loader;
+  static std::unique_ptr<TexPool> g_texpool;
   bool use_dec = info.format_id == 0;
 
   if (info.toggle_open | info.toggle_format_change | info.toggle_refresh) {
@@ -182,7 +181,8 @@ void ImageViewerBehave(Env *e, core::Renderer *r, const ImageViewerInfo &info,
     } catch (...) {
     }
   }
-  if (info.toggle_jump | info.toggle_next | info.toggle_prev | info.toggle_run) {
+  if (info.toggle_jump | info.toggle_next | info.toggle_prev |
+      info.toggle_run) {
     if (g_loader) {
       g_loader->Seekg(info.frame_num);
       auto data = g_loader->ReadF();
@@ -193,5 +193,35 @@ void ImageViewerBehave(Env *e, core::Renderer *r, const ImageViewerInfo &info,
   }
   if (g_loader) {
     args->max_frame = g_loader->Length();
+  }
+}
+
+void ImageCompareBehave(ixr::engine::Env *e, ixr::engine::core::Renderer *r,
+                        const ImageCompareInfo &info, ImageCompareArgs *args) {
+  static std::vector<std::unique_ptr<Loader>> g_loaders;
+  static std::vector<std::unique_ptr<TexPool>> g_texpool;
+  bool use_dec = info.format_id == 0;
+  if (info.toggle_reset) {
+    try {
+      g_loaders.clear();
+      g_texpool.clear();
+      args->tex_ids.clear();
+      if (use_dec) {
+        // g_loader.reset(new PicLoader(info.path, d));
+      } else {
+        for (auto &pth : info.paths) {
+          g_loaders.emplace_back(new RawLoader(pth, ColorBytes(info.format_id),
+                                               info.image_size[0],
+                                               info.image_size[1]));
+          g_texpool.emplace_back(
+              new TexPool(e, r, info.image_size[0], info.image_size[1], 0));
+          auto data = g_loaders.back()->ReadF();
+          g_texpool.back()->Update(ToRGBA(
+              data, info.format_id, info.image_size[0], info.image_size[1]));
+          args->tex_ids.push_back(g_texpool.back()->GetTexID());
+        }
+      }
+    } catch (...) {
+    }
   }
 }

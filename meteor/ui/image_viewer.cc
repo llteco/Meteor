@@ -1,7 +1,7 @@
 #include <algorithm>
 #include "meteor/ui/ui_window.h"
 
-extern std::string OnButtonOpenFile();
+extern std::string OnButtonOpenFile(std::string pth);
 
 ImageViewerInfo ImageViewer(const ImageViewerArgs &args) {
   static ImageViewerInfo ret_info{};
@@ -18,7 +18,7 @@ ImageViewerInfo ImageViewer(const ImageViewerArgs &args) {
   float w1 = ret_info.size.x * 0.13f;
   float w2 = ret_info.size.x * 0.46f;
   if (ImGui::Button("Open File...", {w1, 20})) {
-    ret_info.path = OnButtonOpenFile();
+    ret_info.path = OnButtonOpenFile(ret_info.path);
     ret_info.toggle_open = true;
     ret_info.scale = 1.f;
     ret_info.image_pos_uv[0] = 0.f;
@@ -124,6 +124,7 @@ ImageViewerInfo ImageViewer(const ImageViewerArgs &args) {
       ImGui::EndTooltip();
       // use mouse wheel to zoom image
       ret_info.scale += 0.2f * io.MouseWheel;
+      ret_info.scale = std::max(0.1f, ret_info.scale);
       static float dx, dy;
       if (io.MouseDown[0]) {
         // Drag to move
