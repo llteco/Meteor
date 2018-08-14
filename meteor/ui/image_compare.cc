@@ -36,7 +36,7 @@ ImageCompareInfo ImageCompare(const ImageCompareArgs &args) {
     }
   }
   ImGui::SameLine();
-  if (ImGui::Button("Remove") && ret_info.path_id) {
+  if (ImGui::Button("Remove") && !ret_info.paths.empty()) {
     ret_info.paths.erase(ret_info.paths.begin() + ret_info.path_id);
     if (ret_info.path_id >= ret_info.paths.size()) {
       ret_info.path_id -= 1;
@@ -97,9 +97,7 @@ ImageCompareInfo ImageCompare(const ImageCompareArgs &args) {
     ImGui::SetTooltip("Goto");
   }
   ImGui::PopItemWidth();
-  ImGui::BeginChild(
-      "Images", {}, true,
-      ImGuiWindowFlags_NoScrollWithMouse);
+  ImGui::BeginChild("Images", {}, true, ImGuiWindowFlags_NoScrollWithMouse);
   ArrangeImages(args, &ret_info);
   ImGui::EndChild();
   ImGui::End();
@@ -124,8 +122,9 @@ void ArrangeImages(const ImageCompareArgs &args, ImageCompareInfo *info) {
   char N = 'A';  // use different child names
   while (cnt < total_image_num) {
     if (cnt % col == 0) {
-      ImGui::BeginChild(&N, ImVec2(0, width), false,
-                        ImGuiWindowFlags_NoScrollbar);
+      ImGui::BeginChild(
+          &N, ImVec2(0, width), false,
+          ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoScrollbar);
       child_open = true;
       N++;
     }
@@ -147,8 +146,8 @@ void ArrangeImages(const ImageCompareArgs &args, ImageCompareInfo *info) {
         dx += prev_uv.x * tex_sz.x;
         dy += prev_uv.y * tex_sz.y;
       }
-      dx = std::min(std::max(0.f, dx), std::max(0.f, tex_sz.x - kWinSize.x));
-      dy = std::min(std::max(0.f, dy), std::max(0.f, tex_sz.y - kWinSize.y));
+      dx = std::min(std::max(0.f, dx), std::max(0.f, tex_sz.x - width));
+      dy = std::min(std::max(0.f, dy), std::max(0.f, tex_sz.y - width));
       info->image_pos_uv[0] = dx / tex_sz.x;
       info->image_pos_uv[1] = dy / tex_sz.y;
       info->image_pos_uv[2] = 1 + dx / tex_sz.x;

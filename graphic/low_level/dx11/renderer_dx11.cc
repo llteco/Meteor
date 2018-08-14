@@ -141,7 +141,7 @@ void Dx11Renderer::SetShader(Shader *shader) {
 
 void Dx11Renderer::SetSampler() {
   D3D11_SAMPLER_DESC ssd{};
-  ssd.AddressU = ssd.AddressV = ssd.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+  ssd.AddressU = ssd.AddressV = ssd.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
   ssd.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
   ssd.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
   ssd.MaxAnisotropy = 0;

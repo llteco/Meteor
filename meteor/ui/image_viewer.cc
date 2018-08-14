@@ -85,7 +85,9 @@ ImageViewerInfo ImageViewer(const ImageViewerArgs &args) {
     ImGui::SetTooltip("Goto");
   }
   ImGui::PopItemWidth();
-  ImGui::BeginChild("Image", {}, true, ImGuiWindowFlags_NoScrollWithMouse);
+  ImGui::BeginChild(
+      "Image", {}, true,
+      ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoScrollbar);
   if (args.tex_id) {
     // valid texture input
     // texture size: ret_info.image_size

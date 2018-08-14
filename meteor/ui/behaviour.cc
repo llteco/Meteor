@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <memory>
 #include "meteor/core/pic_loader.h"
 #include "meteor/core/raw_loader.h"
@@ -179,6 +180,7 @@ void ImageViewerBehave(Env *e, core::Renderer *r, const ImageViewerInfo &info,
           ToRGBA(data, info.format_id, info.image_size[0], info.image_size[1]));
       args->tex_id = g_texpool->GetTexID();
     } catch (...) {
+      printf("warning: exception at %s:%d\n", __FUNCTION__, __LINE__);
     }
   }
   if (info.toggle_jump | info.toggle_next | info.toggle_prev |
@@ -188,7 +190,6 @@ void ImageViewerBehave(Env *e, core::Renderer *r, const ImageViewerInfo &info,
       auto data = g_loader->ReadF();
       g_texpool->Update(
           ToRGBA(data, info.format_id, info.image_size[0], info.image_size[1]));
-      args->tex_id = g_texpool->GetTexID();
     }
   }
   if (g_loader) {
@@ -198,30 +199,44 @@ void ImageViewerBehave(Env *e, core::Renderer *r, const ImageViewerInfo &info,
 
 void ImageCompareBehave(ixr::engine::Env *e, ixr::engine::core::Renderer *r,
                         const ImageCompareInfo &info, ImageCompareArgs *args) {
-  static std::vector<std::unique_ptr<Loader>> g_loaders;
-  static std::vector<std::unique_ptr<TexPool>> g_texpool;
+  using TexLoader =
+      std::pair<std::unique_ptr<Loader>, std::unique_ptr<TexPool>>;
+  static std::vector<TexLoader> g_pools;
   bool use_dec = info.format_id == 0;
   if (info.toggle_reset) {
     try {
-      g_loaders.clear();
-      g_texpool.clear();
+      g_pools.clear();
       args->tex_ids.clear();
       if (use_dec) {
         // g_loader.reset(new PicLoader(info.path, d));
       } else {
         for (auto &pth : info.paths) {
-          g_loaders.emplace_back(new RawLoader(pth, ColorBytes(info.format_id),
-                                               info.image_size[0],
-                                               info.image_size[1]));
-          g_texpool.emplace_back(
-              new TexPool(e, r, info.image_size[0], info.image_size[1], 0));
-          auto data = g_loaders.back()->ReadF();
-          g_texpool.back()->Update(ToRGBA(
-              data, info.format_id, info.image_size[0], info.image_size[1]));
-          args->tex_ids.push_back(g_texpool.back()->GetTexID());
+          auto loader = std::make_unique<RawLoader>(
+              pth, ColorBytes(info.format_id), info.image_size[0],
+              info.image_size[1]);
+          auto tex = std::make_unique<TexPool>(e, r, info.image_size[0],
+                                               info.image_size[1], 0);
+          auto data = loader->ReadF();
+          tex->Update(ToRGBA(data, info.format_id, info.image_size[0],
+                             info.image_size[1]));
+          args->tex_ids.push_back(tex->GetTexID());
+          args->max_frame = std::max(args->max_frame, loader->Length());
+          g_pools.push_back(std::make_pair(std::move(loader), std::move(tex)));
         }
       }
     } catch (...) {
+      printf("warning: exception at %s:%d\n", __FUNCTION__, __LINE__);
+    }
+  }
+  if (info.toggle_jump | info.toggle_next | info.toggle_prev |
+      info.toggle_run) {
+    if (!g_pools.empty()) {
+      for (auto &tl : g_pools) {
+        tl.first->Seekg(info.frame_num);
+        auto data = tl.first->ReadF();
+        tl.second->Update(ToRGBA(data, info.format_id, info.image_size[0],
+                                 info.image_size[1]));
+      }
     }
   }
 }
