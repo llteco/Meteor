@@ -1,8 +1,8 @@
 #ifndef METEOR_CORE_PIC_LOADER_H_
 #define METEOR_CORE_PIC_LOADER_H_
+#include "meteor/core/decoder.h"
 #include "meteor/core/loader.h"
 
-class Decoder;
 
 class PicLoader : public Loader {
  public:
@@ -21,5 +21,7 @@ class PicLoader : public Loader {
   virtual int Length() override;
 
   virtual std::vector<char> ReadF() override;
+ private:
+  Decoder d_;
 };
 #endif  // METEOR_CORE_PIC_LOADER_H_

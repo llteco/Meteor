@@ -52,6 +52,7 @@ struct ImageViewerArgs {
   uint32_t window_flag;
   ImVec2 parent_pos;
   ImVec2 parent_size;
+  int image_size[2];
   int max_frame;
   ImTextureID tex_id;
 };
@@ -86,6 +87,7 @@ struct ImageCompareArgs {
   uint32_t window_flag;
   ImVec2 parent_pos;
   ImVec2 parent_size;
+  int image_size[2];
   int max_frame;
   std::vector<ImTextureID> tex_ids;
 };

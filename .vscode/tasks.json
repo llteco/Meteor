@@ -41,7 +41,7 @@
             "type": "shell",
             "command": "cd build && cmake",
             "args": [
-                "${workspaceRoot}/cmake"
+                "${workspaceRoot}"
             ],
             "presentation": {
                 "reveal": "always"
