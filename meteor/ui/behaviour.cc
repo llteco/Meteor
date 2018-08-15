@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <map>
 #include <memory>
 #include "meteor/core/pic_loader.h"
 #include "meteor/core/raw_loader.h"
@@ -167,33 +168,37 @@ void ImageViewerBehave(Env *e, core::Renderer *r, const ImageViewerInfo &info,
 
   if (info.toggle_open | info.toggle_format_change | info.toggle_refresh) {
     try {
+      Decoder d;
       if (use_dec) {
-        // g_loader.reset(new PicLoader(info.path, d));
+        d.Load(info.path);
+        g_loader.reset(new PicLoader(info.path, d));
+        args->image_size[0] = d.Width();
+        args->image_size[1] = d.Height();
       } else {
         g_loader.reset(new RawLoader(info.path, ColorBytes(info.format_id),
                                      info.image_size[0], info.image_size[1]));
+        args->image_size[0] = info.image_size[0];
+        args->image_size[1] = info.image_size[1];
       }
       g_texpool.reset(
-          new TexPool(e, r, info.image_size[0], info.image_size[1], 0));
+          new TexPool(e, r, args->image_size[0], args->image_size[1], 0));
       auto data = g_loader->ReadF();
       g_texpool->Update(
           ToRGBA(data, info.format_id, info.image_size[0], info.image_size[1]));
       args->tex_id = g_texpool->GetTexID();
+      args->max_frame = g_loader->Length();
     } catch (...) {
       printf("warning: exception at %s:%d\n", __FUNCTION__, __LINE__);
     }
   }
   if (info.toggle_jump | info.toggle_next | info.toggle_prev |
       info.toggle_run) {
-    if (g_loader) {
+    if (g_loader && !use_dec) {
       g_loader->Seekg(info.frame_num);
       auto data = g_loader->ReadF();
       g_texpool->Update(
           ToRGBA(data, info.format_id, info.image_size[0], info.image_size[1]));
     }
-  }
-  if (g_loader) {
-    args->max_frame = g_loader->Length();
   }
 }
 
@@ -208,12 +213,26 @@ void ImageCompareBehave(ixr::engine::Env *e, ixr::engine::core::Renderer *r,
       g_pools.clear();
       args->tex_ids.clear();
       if (use_dec) {
-        // g_loader.reset(new PicLoader(info.path, d));
+        Decoder d = Decoder();
+        for (auto &pth : info.paths) {
+          d.Load(pth);
+          auto loader = std::make_unique<PicLoader>(pth, d);
+          args->image_size[0] = d.Width();
+          args->image_size[1] = d.Height();
+          auto tex = std::make_unique<TexPool>(e, r, d.Width(), d.Height(), 0);
+          auto data = loader->ReadF();
+          tex->Update(data.data());
+          args->tex_ids.push_back(tex->GetTexID());
+          g_pools.push_back(std::make_pair(std::move(loader), std::move(tex)));
+        }
+        args->max_frame = 1;
       } else {
         for (auto &pth : info.paths) {
           auto loader = std::make_unique<RawLoader>(
               pth, ColorBytes(info.format_id), info.image_size[0],
               info.image_size[1]);
+          args->image_size[0] = info.image_size[0];
+          args->image_size[1] = info.image_size[1];
           auto tex = std::make_unique<TexPool>(e, r, info.image_size[0],
                                                info.image_size[1], 0);
           auto data = loader->ReadF();
@@ -230,7 +249,7 @@ void ImageCompareBehave(ixr::engine::Env *e, ixr::engine::core::Renderer *r,
   }
   if (info.toggle_jump | info.toggle_next | info.toggle_prev |
       info.toggle_run) {
-    if (!g_pools.empty()) {
+    if (!g_pools.empty() && !use_dec) {
       for (auto &tl : g_pools) {
         tl.first->Seekg(info.frame_num);
         auto data = tl.first->ReadF();

@@ -66,6 +66,10 @@ ImageCompareInfo ImageCompare(const ImageCompareArgs &args) {
     ImGui::EndCombo();
   }
   ImGui::SameLine();
+  if (args.image_size[0] && args.image_size[1] && ret_info.format_id == 0) {
+    ret_info.image_size[0] = args.image_size[0];
+    ret_info.image_size[1] = args.image_size[1];
+  }
   ret_info.toggle_refresh = ImGui::InputInt2("Image Size", ret_info.image_size);
   ImGui::SameLine();
   ret_info.toggle_run ^= ImGui::Button("R", ImVec2{20, 20});

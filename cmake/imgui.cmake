@@ -21,7 +21,7 @@ ExternalProject_Add(imgui-src
   GIT_REPOSITORY ${imgui_URL}
   GIT_TAG ${imgui_TAG}
   PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different ...
-    ${CMAKE_SOURCE_DIR}/patches/imgui/CMakeLists.txt <SOURCE_DIR>
+    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/patches/imgui/CMakeLists.txt <SOURCE_DIR>
   CMAKE_CACHE_ARGS
     -DIMGUI_BUILD_EXAMPLES:BOOL=OFF
     -DCMAKE_DEBUG_POSTFIX:STRING=d

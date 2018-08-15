@@ -1,10 +1,9 @@
-
 cmake_minimum_required(VERSION 3.5.1)
-project(meteor VERSION 0.0.1.0)
+project(meteor VERSION 0.0.0.1)
 
 # enable folder scope in ide
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 include(msvc_helper)
 
@@ -21,9 +20,12 @@ if(MSVC)
   set_msvc_warning_level(4)
 endif(MSVC)
 
-set(PROJECT_ROOT_DIR ${CMAKE_SOURCE_DIR}/../)
+set(PROJECT_ROOT_DIR ${CMAKE_SOURCE_DIR})
 include_directories(${PROJECT_ROOT_DIR})
 
 include(imgui)
-include(meteor)
-include(graphic)
+include(zlib)
+include(png)
+add_subdirectory(graphic)
+add_subdirectory(decoder)
+add_subdirectory(meteor)

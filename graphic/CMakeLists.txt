@@ -99,7 +99,7 @@ if(IXR_ENGINE_BUILD_SHARED)
 else()
   add_library(ixr_engine STATIC ${src})  
 endif()
-target_link_libraries(ixr_engine ${link_libs} ixr_utility)
+target_link_libraries(ixr_engine ${link_libs})
 target_include_directories(ixr_engine PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 set_target_properties(ixr_engine PROPERTIES FOLDER "ixr_engine")
 
