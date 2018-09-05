@@ -164,6 +164,7 @@ void ImageViewerBehave(Env *e, core::Renderer *r, const ImageViewerInfo &info,
                        ImageViewerArgs *args) {
   static std::unique_ptr<Loader> g_loader;
   static std::unique_ptr<TexPool> g_texpool;
+  static std::vector<char> g_buffer;
   bool use_dec = info.format_id == 0;
 
   if (info.toggle_open | info.toggle_format_change | info.toggle_refresh) {
@@ -182,9 +183,9 @@ void ImageViewerBehave(Env *e, core::Renderer *r, const ImageViewerInfo &info,
       }
       g_texpool.reset(
           new TexPool(e, r, args->image_size[0], args->image_size[1], 0));
-      auto data = g_loader->ReadF();
-      g_texpool->Update(
-          ToRGBA(data, info.format_id, info.image_size[0], info.image_size[1]));
+      g_buffer = g_loader->ReadF();
+      g_texpool->Update(ToRGBA(g_buffer, info.format_id, info.image_size[0],
+                               info.image_size[1]));
       args->tex_id = g_texpool->GetTexID();
       args->max_frame = g_loader->Length();
     } catch (...) {
@@ -195,10 +196,20 @@ void ImageViewerBehave(Env *e, core::Renderer *r, const ImageViewerInfo &info,
       info.toggle_run) {
     if (g_loader && !use_dec) {
       g_loader->Seekg(info.frame_num);
-      auto data = g_loader->ReadF();
-      g_texpool->Update(
-          ToRGBA(data, info.format_id, info.image_size[0], info.image_size[1]));
+      g_buffer = g_loader->ReadF();
+      g_texpool->Update(ToRGBA(g_buffer, info.format_id, info.image_size[0],
+                               info.image_size[1]));
     }
+  }
+  // update cursor pixel color
+  if (!g_buffer.empty() && g_texpool) {
+    int u = static_cast<int>(info.image_cursor.x);
+    int v = static_cast<int>(info.image_cursor.y);
+    int offset = info.image_size[0] * v * 4 + u * 4;
+    args->cursor_color.x = static_cast<float>((uint8_t)g_buffer[offset]);
+    args->cursor_color.y = static_cast<float>((uint8_t)g_buffer[offset + 1]);
+    args->cursor_color.z = static_cast<float>((uint8_t)g_buffer[offset + 2]);
+    args->cursor_color.w = static_cast<float>((uint8_t)g_buffer[offset + 3]);
   }
 }
 
@@ -207,10 +218,12 @@ void ImageCompareBehave(ixr::engine::Env *e, ixr::engine::core::Renderer *r,
   using TexLoader =
       std::pair<std::unique_ptr<Loader>, std::unique_ptr<TexPool>>;
   static std::vector<TexLoader> g_pools;
+  static std::vector<std::vector<char>> g_buffers;
   bool use_dec = info.format_id == 0;
   if (info.toggle_reset) {
     try {
       g_pools.clear();
+      g_buffers.clear();
       args->tex_ids.clear();
       if (use_dec) {
         Decoder d = Decoder();
@@ -220,8 +233,8 @@ void ImageCompareBehave(ixr::engine::Env *e, ixr::engine::core::Renderer *r,
           args->image_size[0] = d.Width();
           args->image_size[1] = d.Height();
           auto tex = std::make_unique<TexPool>(e, r, d.Width(), d.Height(), 0);
-          auto data = loader->ReadF();
-          tex->Update(data.data());
+          g_buffers.push_back(loader->ReadF());
+          tex->Update(g_buffers.back().data());
           args->tex_ids.push_back(tex->GetTexID());
           g_pools.push_back(std::make_pair(std::move(loader), std::move(tex)));
         }
@@ -235,9 +248,9 @@ void ImageCompareBehave(ixr::engine::Env *e, ixr::engine::core::Renderer *r,
           args->image_size[1] = info.image_size[1];
           auto tex = std::make_unique<TexPool>(e, r, info.image_size[0],
                                                info.image_size[1], 0);
-          auto data = loader->ReadF();
-          tex->Update(ToRGBA(data, info.format_id, info.image_size[0],
-                             info.image_size[1]));
+          g_buffers.push_back(loader->ReadF());
+          tex->Update(ToRGBA(g_buffers.back(), info.format_id,
+                             info.image_size[0], info.image_size[1]));
           args->tex_ids.push_back(tex->GetTexID());
           args->max_frame = std::max(args->max_frame, loader->Length());
           g_pools.push_back(std::make_pair(std::move(loader), std::move(tex)));

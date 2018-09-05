@@ -104,7 +104,6 @@ ImageViewerInfo ImageViewer(const ImageViewerArgs &args) {
     auto pos = ImGui::GetCursorScreenPos();
     ImGui::Image(args.tex_id, tex_sz, uv0, uv1);
     if (ImGui::IsItemHovered()) {
-      // TODO
       ImGui::BeginTooltip();
       float region_sz = 32.0f;
       float region_x = io.MousePos.x - pos.x - region_sz * 0.5f;
@@ -150,6 +149,9 @@ ImageViewerInfo ImageViewer(const ImageViewerArgs &args) {
       ret_info.image_pos_uv[1] = dy / tex_sz.y;
       ret_info.image_pos_uv[2] = 1 + dx / tex_sz.x;
       ret_info.image_pos_uv[3] = 1 + dy / tex_sz.y;
+      // update cursor coordinate
+      ret_info.image_cursor.x = (io.MousePos.x - pos.x + dx) / ret_info.scale;
+      ret_info.image_cursor.y = (io.MousePos.y - pos.y + dy) / ret_info.scale;
     }
   }
   ImGui::EndChild();

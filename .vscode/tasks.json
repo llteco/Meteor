@@ -37,18 +37,6 @@
             "problemMatcher": []
         },
         {
-            "label": "config",
-            "type": "shell",
-            "command": "cd build && cmake",
-            "args": [
-                "${workspaceRoot}"
-            ],
-            "presentation": {
-                "reveal": "always"
-            },
-            "problemMatcher": []
-        },
-        {
             "label": "build_release",
             "type": "shell",
             "command": "cmake",

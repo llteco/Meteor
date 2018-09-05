@@ -45,6 +45,7 @@ struct ImageViewerInfo {
   float image_pos_uv[4];
   int frame_num;
   float scale;
+  ImVec2 image_cursor;
 };
 
 struct ImageViewerArgs {
@@ -55,6 +56,7 @@ struct ImageViewerArgs {
   int image_size[2];
   int max_frame;
   ImTextureID tex_id;
+  ImVec4 cursor_color;
 };
 
 ImageViewerInfo ImageViewer(const ImageViewerArgs &args);
@@ -80,6 +82,9 @@ struct ImageCompareInfo {
   float image_pos_uv[4];
   int frame_num;
   float scale;
+  std::string image_name;
+  ImVec2 image_cursor;
+  ImVec4 cursor_color;
 };
 
 struct ImageCompareArgs {
@@ -108,7 +113,11 @@ struct StatusBarArgs {
   ImVec2 parent_size;
   std::string image_name;
   ImVec2 cursor_coord;
-  float rgb_value[3];
+  ImVec4 cursor_color;
+  float scale;
+  float local_psnr;
+  ImVec2 local_rect;
+  float global_psnr;
 };
 
 StatusBarInfo StatusBar(const StatusBarArgs &args);

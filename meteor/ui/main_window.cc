@@ -108,14 +108,22 @@ int main() {
     if (iv.enable) {
       ivr = ImageViewer(iv);
       ImageViewerBehave(env, ui_renderer, ivr, &iv);
+      sb.cursor_color = iv.cursor_color;
       sb.parent_pos = ivr.pos;
       sb.parent_size = ivr.size;
+      sb.image_name = ivr.path;
+      sb.cursor_coord = ivr.image_cursor;
+      sb.scale = ivr.scale;
     }
     if (ic.enable) {
       icr = ImageCompare(ic);
       ImageCompareBehave(env, ui_renderer, icr, &ic);
       sb.parent_pos = icr.pos;
       sb.parent_size = icr.size;
+      sb.image_name = icr.image_name;
+      sb.cursor_coord = icr.image_cursor;
+      sb.cursor_color = icr.cursor_color;
+      sb.scale = icr.scale;
     }
     sbr = StatusBar(sb);
     // ImGui::ShowDemoWindow();
