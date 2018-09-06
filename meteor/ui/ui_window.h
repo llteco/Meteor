@@ -67,7 +67,7 @@ void ImageViewerBehave(ixr::engine::Env *e, ixr::engine::core::Renderer *r,
 struct ImageCompareInfo {
   ImVec2 pos;
   ImVec2 size;
-  bool toggle_open;
+  bool toggle_remove;
   bool toggle_run;
   bool toggle_prev;
   bool toggle_next;
@@ -82,9 +82,9 @@ struct ImageCompareInfo {
   float image_pos_uv[4];
   int frame_num;
   float scale;
+  int image_index;
   std::string image_name;
   ImVec2 image_cursor;
-  ImVec4 cursor_color;
 };
 
 struct ImageCompareArgs {
@@ -95,6 +95,7 @@ struct ImageCompareArgs {
   int image_size[2];
   int max_frame;
   std::vector<ImTextureID> tex_ids;
+  ImVec4 cursor_color;
 };
 
 ImageCompareInfo ImageCompare(const ImageCompareArgs &args);

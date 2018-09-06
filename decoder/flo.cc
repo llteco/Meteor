@@ -18,6 +18,7 @@ using namespace std;
 
 template <class T>
 inline T clip(T value, T min, T max) {
+  if (max < min) max = min;
   if (value < min) return min;
   if (value > max) return max;
   return value;

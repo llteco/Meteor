@@ -36,7 +36,8 @@ ImageCompareInfo ImageCompare(const ImageCompareArgs &args) {
     }
   }
   ImGui::SameLine();
-  if (ImGui::Button("Remove") && !ret_info.paths.empty()) {
+  ret_info.toggle_remove = ImGui::Button("Remove");
+  if (ret_info.toggle_remove && !ret_info.paths.empty()) {
     ret_info.paths.erase(ret_info.paths.begin() + ret_info.path_id);
     if (ret_info.path_id >= ret_info.paths.size()) {
       ret_info.path_id -= 1;
@@ -131,8 +132,8 @@ void ArrangeImages(const ImageCompareArgs &args, ImageCompareInfo *info) {
           ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoScrollbar);
       child_open = true;
       N++;
+      ImGui::Columns(col, nullptr, false);
     }
-    ImGui::Columns(col, nullptr, false);
     ImGui::Image(args.tex_ids[cnt++], tex_sz, uv0, uv1);
     if (ImGui::IsItemHovered()) {
       // use mouse wheel to zoom image
@@ -156,6 +157,18 @@ void ArrangeImages(const ImageCompareArgs &args, ImageCompareInfo *info) {
       info->image_pos_uv[1] = dy / tex_sz.y;
       info->image_pos_uv[2] = 1 + dx / tex_sz.x;
       info->image_pos_uv[3] = 1 + dy / tex_sz.y;
+      // update cursor info
+      info->image_index = cnt - 1;
+      if (cnt <= info->paths.size())
+        info->image_name = info->paths[info->image_index];
+      auto pos = ImGui::GetWindowPos();
+      float off_y = pos.y;
+      float off_x = pos.x;
+      if (cnt > 1) {
+        off_x += ImGui::GetColumnWidth() * ImGui::GetColumnIndex();
+      }
+      info->image_cursor.x = (kIO.MousePos.x - off_x + dx) / info->scale;
+      info->image_cursor.y = (kIO.MousePos.y - off_y + dy) / info->scale;
     }
     ImGui::NextColumn();
     if (cnt % col == 0) {

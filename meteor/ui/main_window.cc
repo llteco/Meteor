@@ -118,11 +118,11 @@ int main() {
     if (ic.enable) {
       icr = ImageCompare(ic);
       ImageCompareBehave(env, ui_renderer, icr, &ic);
+      sb.cursor_color = ic.cursor_color;
       sb.parent_pos = icr.pos;
       sb.parent_size = icr.size;
       sb.image_name = icr.image_name;
       sb.cursor_coord = icr.image_cursor;
-      sb.cursor_color = icr.cursor_color;
       sb.scale = icr.scale;
     }
     sbr = StatusBar(sb);

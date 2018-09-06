@@ -23,6 +23,7 @@ inline float ColorBytes(int cmode) {
 }
 
 inline float clip(float x, float min, float max) {
+  if (max < min) max = min;
   if (x < min) {
     return min;
   } else if (x > max) {
@@ -49,8 +50,6 @@ inline char *PackedToYUV(std::vector<char> &data, int cmode, int w, int h) {
       data.swap(buf);
       return data.data();
   }
-  data.swap(buf);
-  return data.data();
 }
 
 inline char *PlanerToYUV(std::vector<char> &data, int cmode, int w, int h) {
@@ -220,7 +219,7 @@ void ImageCompareBehave(ixr::engine::Env *e, ixr::engine::core::Renderer *r,
   static std::vector<TexLoader> g_pools;
   static std::vector<std::vector<char>> g_buffers;
   bool use_dec = info.format_id == 0;
-  if (info.toggle_reset) {
+  if (info.toggle_reset | info.toggle_remove) {
     try {
       g_pools.clear();
       g_buffers.clear();
@@ -270,5 +269,19 @@ void ImageCompareBehave(ixr::engine::Env *e, ixr::engine::core::Renderer *r,
                                  info.image_size[1]));
       }
     }
+  }
+  // update cursor pixel color
+  if (info.image_index >= g_buffers.size()) return;
+  auto &buffer = g_buffers[info.image_index];
+  if (!buffer.empty()) {
+    int u = static_cast<int>(info.image_cursor.x);
+    int v = static_cast<int>(info.image_cursor.y);
+    u = clip(u, 0, info.image_size[0] - 1);
+    v = clip(v, 0, info.image_size[1] - 1);
+    int offset = info.image_size[0] * v * 4 + u * 4;
+    args->cursor_color.x = static_cast<float>((uint8_t)buffer[offset]);
+    args->cursor_color.y = static_cast<float>((uint8_t)buffer[offset + 1]);
+    args->cursor_color.z = static_cast<float>((uint8_t)buffer[offset + 2]);
+    args->cursor_color.w = static_cast<float>((uint8_t)buffer[offset + 3]);
   }
 }
