@@ -26,41 +26,48 @@ inline T clip(T value, T min, T max) {
 
 struct Pixel {
   uint8_t r, g, b, a;
+};
 
-  Pixel(uint8_t x, uint8_t y, uint8_t z) : r(x), g(y), b(z), a(255) {}
-  Pixel(int32_t x, int32_t y, int32_t z) : a(255) {
-    r = static_cast<uint8_t>(x);
-    g = static_cast<uint8_t>(y);
-    b = static_cast<uint8_t>(z);
+struct fPixel {
+  float r, g, b;
+
+  fPixel(float x, float y, float z) : r(x), g(y), b(z) {}
+  fPixel(int32_t x, int32_t y, int32_t z) {
+    r = static_cast<float>(x);
+    g = static_cast<float>(y);
+    b = static_cast<float>(z);
   }
 
-  Pixel Scale(float s) {
-    float r_ = static_cast<float>(r) * s;
-    float g_ = static_cast<float>(g) * s;
-    float b_ = static_cast<float>(b) * s;
-    return Pixel(static_cast<uint8_t>(roundf(r_)),
-                 static_cast<uint8_t>(roundf(g_)),
-                 static_cast<uint8_t>(roundf(b_)));
+  fPixel Scale(float s) { return fPixel(r * s, g * s, b * s); }
+
+  fPixel operator+(const fPixel &rhs) {
+    float r_ = r + rhs.r;
+    float g_ = g + rhs.g;
+    float b_ = b + rhs.b;
+    return fPixel(r_, g_, b_);
   }
 
-  Pixel operator+(const Pixel &rhs) {
-    int32_t r_ = r + rhs.r;
-    int32_t g_ = g + rhs.g;
-    int32_t b_ = b + rhs.b;
-    return Pixel(clip(r_, 0, 255), clip(g_, 0, 255), clip(b_, 0, 255));
+  fPixel operator-(const fPixel &rhs) {
+    float r_ = r - rhs.r;
+    float g_ = g - rhs.g;
+    float b_ = b - rhs.b;
+    return fPixel(r_, g_, b_);
   }
 
-  Pixel operator-(const Pixel &rhs) {
-    int32_t r_ = r - rhs.r;
-    int32_t g_ = g - rhs.g;
-    int32_t b_ = b - rhs.b;
-    return Pixel(clip(r_, 0, 255), clip(g_, 0, 255), clip(b_, 0, 255));
+  Pixel ToUint8() const {
+    uint8_t r_ = static_cast<uint8_t>(round(r));
+    uint8_t g_ = static_cast<uint8_t>(round(g));
+    uint8_t b_ = static_cast<uint8_t>(round(b));
+    return {r_, g_, b_, 255};
   }
+
+  static fPixel I() { return fPixel(255, 255, 255); }
 };
 
 class ColorWheel {
  public:
-  ColorWheel() {
+  ColorWheel(bool log = true, int scaledown = 6)
+      : logscale_(log), scaledown_(scaledown) {
     const int RY = 15;
     const int YG = 6;
     const int GC = 4;
@@ -69,15 +76,18 @@ class ColorWheel {
     const int MR = 6;
     constexpr int ncols = RY + YG + GC + CB + BM + MR;
     wheel_.reserve(ncols);
-    for (int i = 0; i < RY; i++) wheel_.push_back(Pixel(255, 255 * i / RY, 0));
+    for (int i = 0; i < RY; i++)
+      wheel_.push_back(fPixel(255.f, 255.f * i / RY, 0.f));
     for (int i = 0; i < YG; i++)
-      wheel_.push_back(Pixel(255 - 255 * i / YG, 255, 0));
-    for (int i = 0; i < GC; i++) wheel_.push_back(Pixel(0, 255, 255 * i / GC));
+      wheel_.push_back(fPixel(255.f - 255.f * i / YG, 255.f, 0.f));
+    for (int i = 0; i < GC; i++)
+      wheel_.push_back(fPixel(0.f, 255.f, 255.f * i / GC));
     for (int i = 0; i < CB; i++)
-      wheel_.push_back(Pixel(0, 255 - 255 * i / CB, 255));
-    for (int i = 0; i < BM; i++) wheel_.push_back(Pixel(255 * i / BM, 0, 255));
+      wheel_.push_back(fPixel(0.f, 255.f - 255.f * i / CB, 255.f));
+    for (int i = 0; i < BM; i++)
+      wheel_.push_back(fPixel(255.f * i / BM, 0.f, 255.f));
     for (int i = 0; i < MR; i++)
-      wheel_.push_back(Pixel(255, 0, 255 - 255 * i / MR));
+      wheel_.push_back(fPixel(255.f, 0.f, 255.f - 255.f * i / MR));
   }
   ~ColorWheel() {}
 
@@ -85,6 +95,10 @@ class ColorWheel {
     constexpr float M_PI = 3.141592654f;
     auto ncols = wheel_.size();
     float rad = sqrt(fx * fx + fy * fy);
+    if (logscale_) {
+      rad = log1pf(rad);
+    }
+    rad /= scaledown_;
     float a = atan2(-fy, -fx) / M_PI;
     float fk = (a + 1.0f) / 2.0f * (ncols - 1);
     int k0 = static_cast<int>(fk);
@@ -95,15 +109,17 @@ class ColorWheel {
     auto col1 = wheel_[k1];
     auto col = col0.Scale(1 - f) + col1.Scale(f);
     if (rad <= 1) {
-      col = Pixel(255, 255, 255) - (Pixel(255, 255, 255) - col).Scale(rad);
+      col = fPixel::I() - (fPixel::I() - col).Scale(rad);
     } else {
       col = col.Scale(0.75f);
     }
-    return col;
+    return col.ToUint8();
   }
 
  private:
-  vector<Pixel> wheel_;
+  vector<fPixel> wheel_;
+  bool logscale_;
+  float scaledown_;
 };
 
 class VizFlow {
