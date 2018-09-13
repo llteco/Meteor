@@ -22,6 +22,8 @@ StatusBarInfo StatusBar(const StatusBarArgs &args) {
               (int)args.cursor_color.y, (int)args.cursor_color.z);
   ImGui::SameLine();
   ImGui::Text("<Scale: %.1f%%>", args.scale * 100.f);
+  ImGui::SameLine();
+  ImGui::Text("<PSNR: %.2fdB>", args.global_psnr);
   ImGui::End();
   return ret_info;
 }

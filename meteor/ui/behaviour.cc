@@ -283,5 +283,18 @@ void ImageCompareBehave(ixr::engine::Env *e, ixr::engine::core::Renderer *r,
     args->cursor_color.y = static_cast<float>((uint8_t)buffer[offset + 1]);
     args->cursor_color.z = static_cast<float>((uint8_t)buffer[offset + 2]);
     args->cursor_color.w = static_cast<float>((uint8_t)buffer[offset + 3]);
+    if (info.image_index > 0) {
+      // PSNR
+      auto &label = g_buffers[0];
+      int64_t mse = 0;
+      for (int i = 0; i < buffer.size(); i++) {
+        int64_t diff = (uint8_t)buffer[i] - (uint8_t)label[i];
+        mse += diff * diff;
+      }
+      // 255^2 / 4 * 3 = 48768.75
+      double psnr =
+          10.0 * log10(48768.75 * buffer.size()) - 10.0 * log10(mse);
+      args->global_psnr = psnr;
+    }
   }
 }

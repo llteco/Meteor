@@ -96,6 +96,8 @@ struct ImageCompareArgs {
   int max_frame;
   std::vector<ImTextureID> tex_ids;
   ImVec4 cursor_color;
+  double global_psnr;
+  double local_psnr;
 };
 
 ImageCompareInfo ImageCompare(const ImageCompareArgs &args);

@@ -124,6 +124,7 @@ int main() {
       sb.image_name = icr.image_name;
       sb.cursor_coord = icr.image_cursor;
       sb.scale = icr.scale;
+      sb.global_psnr = ic.global_psnr;
     }
     sbr = StatusBar(sb);
     // ImGui::ShowDemoWindow();
