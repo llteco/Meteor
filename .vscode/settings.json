@@ -85,5 +85,6 @@
         "xlocmes": "cpp",
         "xlocmon": "cpp",
         "xloctime": "cpp"
-    }
+    },
+    "cmake.configureOnOpen": true
 }
