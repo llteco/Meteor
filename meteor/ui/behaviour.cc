@@ -292,9 +292,61 @@ void ImageCompareBehave(ixr::engine::Env *e, ixr::engine::core::Renderer *r,
         mse += diff * diff;
       }
       // 255^2 / 4 * 3 = 48768.75
-      double psnr =
-          10.0 * log10(48768.75 * buffer.size()) - 10.0 * log10(mse);
+      double psnr = 10.0 * log10(48768.75 * buffer.size()) - 10.0 * log10(mse);
       args->global_psnr = psnr;
     }
+  }
+}
+
+void ExpActualBehave(ixr::engine::Env *e, ixr::engine::core::Renderer *r,
+                     const ExpInfo &info, ExpArgs *args) {
+  static std::unique_ptr<Loader> g_loader;
+  static std::unique_ptr<TexPool> g_texpool;
+  static std::vector<char> g_buffer;
+  bool use_dec = info.format_id == 0;
+
+  if (info.toggle_open | info.toggle_format_change | info.toggle_refresh) {
+    try {
+      Decoder d;
+      if (use_dec) {
+        d.Load(info.path);
+        g_loader.reset(new PicLoader(info.path, d));
+        args->image_size[0] = d.Width();
+        args->image_size[1] = d.Height();
+      } else {
+        g_loader.reset(new RawLoader(info.path, ColorBytes(info.format_id),
+                                     info.image_size[0], info.image_size[1]));
+        args->image_size[0] = info.image_size[0];
+        args->image_size[1] = info.image_size[1];
+      }
+      g_texpool.reset(
+          new TexPool(e, r, args->image_size[0], args->image_size[1], 0));
+      g_buffer = g_loader->ReadF();
+      g_texpool->Update(ToRGBA(g_buffer, info.format_id, info.image_size[0],
+                               info.image_size[1]));
+      args->tex_id = g_texpool->GetTexID();
+      args->max_frame = g_loader->Length();
+    } catch (...) {
+      printf("warning: exception at %s:%d\n", __FUNCTION__, __LINE__);
+    }
+  }
+  if (info.toggle_jump | info.toggle_next | info.toggle_prev |
+      info.toggle_run) {
+    if (g_loader && !use_dec) {
+      g_loader->Seekg(info.frame_num);
+      g_buffer = g_loader->ReadF();
+      g_texpool->Update(ToRGBA(g_buffer, info.format_id, info.image_size[0],
+                               info.image_size[1]));
+    }
+  }
+  // update cursor pixel color
+  if (!g_buffer.empty() && g_texpool) {
+    int u = static_cast<int>(info.image_cursor.x);
+    int v = static_cast<int>(info.image_cursor.y);
+    int offset = info.image_size[0] * v * 4 + u * 4;
+    args->cursor_color.x = static_cast<float>((uint8_t)g_buffer[offset]);
+    args->cursor_color.y = static_cast<float>((uint8_t)g_buffer[offset + 1]);
+    args->cursor_color.z = static_cast<float>((uint8_t)g_buffer[offset + 2]);
+    args->cursor_color.w = static_cast<float>((uint8_t)g_buffer[offset + 3]);
   }
 }

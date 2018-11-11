@@ -93,6 +93,12 @@ int main() {
   sb.window_flag = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse |
                    ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize;
 
+  ExpArgs exp{};
+  ExpInfo expr;
+  exp.enable = false;
+  exp.window_flag = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse |
+                    ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize;
+
   while (window->LoopState() != engine::WINDOW_STATE_HALT) {
     ImGui_ImplDX11_NewFrame(window->GetHandle());
     ImVec4 clear_color = ImColor(114, 144, 154);
@@ -105,6 +111,9 @@ int main() {
     ic.enable = tbr.image_compare;
     ic.parent_pos = tbr.pos;
     ic.parent_size = tbr.size;
+    exp.enable = tbr.exp;
+    exp.parent_pos = tbr.pos;
+    exp.parent_size = tbr.size;
     if (iv.enable) {
       ivr = ImageViewer(iv);
       ImageViewerBehave(env, ui_renderer, ivr, &iv);
@@ -125,6 +134,12 @@ int main() {
       sb.cursor_coord = icr.image_cursor;
       sb.scale = icr.scale;
       sb.global_psnr = ic.global_psnr;
+    }
+    if (exp.enable) {
+      expr = ExpPanel(exp);
+      ExpActualBehave(env, ui_renderer, expr, &exp);
+      sb.parent_pos = expr.pos;
+      sb.parent_size = expr.size;
     }
     sbr = StatusBar(sb);
     // ImGui::ShowDemoWindow();

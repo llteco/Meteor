@@ -17,6 +17,7 @@ constexpr float kTitleBarHeight = 88;
 struct TitleBarInfo {
   bool image_view;
   bool image_compare;
+  bool exp;
   ImVec2 pos;
   ImVec2 size;
 };
@@ -124,4 +125,45 @@ struct StatusBarArgs {
 };
 
 StatusBarInfo StatusBar(const StatusBarArgs &args);
+
+struct ExpInfo {
+  ImVec2 pos;
+  ImVec2 size;
+  char url[512];
+  bool toggle_open;
+  bool toggle_run;
+  bool toggle_prev;
+  bool toggle_next;
+  bool toggle_jump;
+  bool toggle_refresh;
+  bool toggle_format_change;
+  bool toggle_reset;
+  bool toggle_connect;
+  std::string path;
+  int format_id;
+  int image_size[2];
+  float image_pos_uv[4];
+  int frame_num;
+  float scale;
+  ImVec2 image_cursor;
+};
+
+struct ExpArgs {
+  bool enable;
+  uint32_t window_flag;
+  ImVec2 parent_pos;
+  ImVec2 parent_size;
+  int image_size[2];
+  int max_frame;
+  ImTextureID tex_id;
+  ImTextureID sub_tex_id[4];
+  int subimage_size[8];
+  ImVec4 cursor_color;
+  bool connected;
+};
+
+ExpInfo ExpPanel(const ExpArgs &args);
+
+void ExpActualBehave(ixr::engine::Env *e, ixr::engine::core::Renderer *r,
+                     const ExpInfo &info, ExpArgs *args);
 #endif  // METEOR_UI_UI_WINDOW_H_
