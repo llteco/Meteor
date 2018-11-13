@@ -139,6 +139,7 @@ struct ExpInfo {
   bool toggle_format_change;
   bool toggle_reset;
   bool toggle_connect;
+  bool toggle_compare;
   std::string path;
   int format_id;
   int image_size[2];
@@ -146,6 +147,8 @@ struct ExpInfo {
   int frame_num;
   float scale;
   ImVec2 image_cursor;
+  ImVec2 select_offset;
+  ImVec2 select_region;
 };
 
 struct ExpArgs {

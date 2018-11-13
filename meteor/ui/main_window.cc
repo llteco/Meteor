@@ -140,6 +140,10 @@ int main() {
       ExpActualBehave(env, ui_renderer, expr, &exp);
       sb.parent_pos = expr.pos;
       sb.parent_size = expr.size;
+      sb.image_name = expr.path;
+      sb.cursor_coord = expr.image_cursor;
+      sb.scale = 1.f;
+      sb.cursor_color = exp.cursor_color;
     }
     sbr = StatusBar(sb);
     // ImGui::ShowDemoWindow();
