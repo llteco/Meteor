@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5.1)
-project(meteor VERSION 0.0.0.1)
+project(meteor VERSION 0.0.0.2)
 
 # enable folder scope in ide
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
