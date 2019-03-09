@@ -14,6 +14,10 @@ std::vector<std::string> OnButtonOpenFile() {
   return ixr::utils::CallOpenMultipleFileDialog();
 }
 
+std::string OnButtonSaveFile(std::string auto_name) {
+  return ixr::utils::CallSaveFileDialog(auto_name);
+}
+
 engine::window::Window *CreateUIWindow(engine::Env *env) {
   engine::WindowDesc wd{
       "MeteorViewer", engine::WINDOW_STYLE_DEFAULT, 1000, 800, 0, 0};

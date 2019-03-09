@@ -86,5 +86,6 @@
         "xlocmon": "cpp",
         "xloctime": "cpp"
     },
-    "cmake.configureOnOpen": true
+    "cmake.configureOnOpen": true,
+    "C_Cpp.configurationWarnings": "Disabled"
 }

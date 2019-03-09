@@ -3,6 +3,8 @@
 
 extern std::vector<std::string> OnButtonOpenFile();
 
+extern std::string OnButtonSaveFile(std::string);
+
 void ArrangeImages(const ImageCompareArgs &args, ImageCompareInfo *info);
 
 ImageCompareInfo ImageCompare(const ImageCompareArgs &args) {
@@ -51,6 +53,32 @@ ImageCompareInfo ImageCompare(const ImageCompareArgs &args) {
     ret_info.image_pos_uv[1] = 0.f;
     ret_info.image_pos_uv[2] = 1.f;
     ret_info.image_pos_uv[3] = 1.f;
+    ret_info.bound_box = {};
+  }
+  ImGui::SameLine();
+  ret_info.toggle_save = ImGui::Button("Save");
+  if (ret_info.toggle_save) {
+    ret_info.saved_paths.clear();
+    std::string prefix = OnButtonSaveFile("crop");
+    if (prefix != "iloveliuxing") {
+      std::string savefile;
+      auto pos = prefix.find_last_of('.');
+      if (pos < prefix.size()) {
+        prefix = std::string(prefix.begin(), prefix.begin() + pos);
+      }
+      for (auto &name : ret_info.paths) {
+        auto pos1 = name.find_last_of('\\');
+        auto pos2 = name.find_last_of('.');
+        if (pos1 < name.size() && pos2 < name.size()) {
+          savefile = prefix + "_" + std::string(name.begin() + pos1 + 1,
+                                                name.begin() + pos2);
+          savefile += ".png";
+        }
+        ret_info.saved_paths.push_back(savefile);
+      }
+    } else {
+      ret_info.toggle_save = false;
+    }
   }
   float w3 = ret_info.size.x * 0.113f;
   ImGui::PushItemWidth(w3);
@@ -150,6 +178,13 @@ void ArrangeImages(const ImageCompareArgs &args, ImageCompareInfo *info) {
         dy = kIO.MouseClickedPos[0].y - kIO.MousePos.y;
         dx += prev_uv.x * tex_sz.x;
         dy += prev_uv.y * tex_sz.y;
+      } else if (kIO.MouseDown[1]) {
+        // Drag to bound
+        info->bound_box.x = kIO.MouseClickedPos[1].x;
+        info->bound_box.y = kIO.MouseClickedPos[1].y;
+        info->bound_box.z = kIO.MousePos.x;
+        info->bound_box.w = kIO.MousePos.y;
+        info->bound_index = cnt - 1;
       }
       dx = std::min(std::max(0.f, dx), std::max(0.f, tex_sz.x - width));
       dy = std::min(std::max(0.f, dy), std::max(0.f, tex_sz.y - width));
@@ -164,12 +199,23 @@ void ArrangeImages(const ImageCompareArgs &args, ImageCompareInfo *info) {
       auto pos = ImGui::GetWindowPos();
       float off_y = pos.y;
       float off_x = pos.x;
+      float off_bound_x = off_x;
       if (cnt > 1) {
         off_x += ImGui::GetColumnWidth() * ImGui::GetColumnIndex();
       }
+      if (info->bound_index > 0) {
+        off_bound_x += ImGui::GetColumnWidth() * info->bound_index;
+      }
       info->image_cursor.x = (kIO.MousePos.x - off_x + dx) / info->scale;
       info->image_cursor.y = (kIO.MousePos.y - off_y + dy) / info->scale;
+      info->real_box.x = (info->bound_box.x - off_bound_x + dx) / info->scale;
+      info->real_box.y = (info->bound_box.y - off_y + dy) / info->scale;
+      info->real_box.z = (info->bound_box.z - off_bound_x + dx) / info->scale;
+      info->real_box.w = (info->bound_box.w - off_y + dy) / info->scale;
     }
+    auto drawer = ImGui::GetWindowDrawList();
+    auto xyz = info->bound_box;
+    drawer->AddRect({xyz.x, xyz.y}, {xyz.z, xyz.w}, ImColor(255, 0, 0));
     ImGui::NextColumn();
     if (cnt % col == 0) {
       ImGui::EndChild();

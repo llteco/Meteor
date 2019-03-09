@@ -76,7 +76,9 @@ struct ImageCompareInfo {
   bool toggle_refresh;
   bool toggle_format_change;
   bool toggle_reset;
+  bool toggle_save;
   std::vector<std::string> paths;
+  std::vector<std::string> saved_paths;
   int path_id;
   int format_id;
   int image_size[2];
@@ -86,6 +88,9 @@ struct ImageCompareInfo {
   int image_index;
   std::string image_name;
   ImVec2 image_cursor;
+  ImVec4 bound_box;
+  int bound_index;
+  ImVec4 real_box;
 };
 
 struct ImageCompareArgs {

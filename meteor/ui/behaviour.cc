@@ -1,10 +1,12 @@
 #include <algorithm>
 #include <map>
 #include <memory>
+#include <fstream>
 #include "meteor/core/pic_loader.h"
 #include "meteor/core/raw_loader.h"
 #include "meteor/core/tex_pool.h"
 #include "meteor/ui/ui_window.h"
+#include "meteor/lodepng/lodepng.h"
 
 using namespace ixr::engine;
 
@@ -30,6 +32,21 @@ inline float clip(float x, float min, float max) {
     return max;
   }
   return x;
+}
+
+inline std::vector<uint8_t> crop(const std::vector<char> &b, int pitch,
+                                 int u0, int v0, int u1, int v1) {
+  if (u1 <= u0 || v1 <= v0) {
+    printf("[!] wrong crop box!\n");
+    return {};
+  }
+  int crop_pitch = 4 * (u1 - u0);
+  std::vector<uint8_t> new_crop((v1 - v0) * crop_pitch);
+  for (int i = 0; i < v1 - v0; i++) {
+    const char *src = b.data() + (v0 + i) * pitch + u0 * 4;
+    memcpy(new_crop.data() + i * crop_pitch, src, crop_pitch);
+  }
+  return new_crop;
 }
 
 inline char *PackedToYUV(std::vector<char> &data, int cmode, int w, int h) {
@@ -268,6 +285,30 @@ void ImageCompareBehave(ixr::engine::Env *e, ixr::engine::core::Renderer *r,
         tl.second->Update(ToRGBA(data, info.format_id, info.image_size[0],
                                  info.image_size[1]));
       }
+    }
+  } else if (info.toggle_save) {
+    auto iter = info.saved_paths.begin();
+    for (auto &&b : g_buffers) {
+      if (b.empty()) continue;
+      int u0 = static_cast<int>(info.real_box.x);
+      int v0 = static_cast<int>(info.real_box.y);
+      u0 = clip(u0, 0, info.image_size[0] - 1);
+      v0 = clip(v0, 0, info.image_size[1] - 1);
+      int u1 = static_cast<int>(info.real_box.z);
+      int v1 = static_cast<int>(info.real_box.w);
+      u1 = clip(u1, 0, info.image_size[0] - 1);
+      v1 = clip(v1, 0, info.image_size[1] - 1);
+      auto cropped_image = crop(b, info.image_size[0] * 4, u0, v0, u1, v1);
+      std::vector<uint8_t> png;
+      if (lodepng::encode(png, cropped_image, u1 - u0, v1 - v0) == 0) {
+        printf("[!] saved to %s\n", iter->c_str());
+        std::ofstream fp(iter->c_str(), std::ios::binary);
+        fp.write(reinterpret_cast<const char *>(png.data()), png.size());
+        ++iter;
+      }
+    }
+    if (iter != info.saved_paths.end()) {
+      printf("[*] warning: error occurred while saving files.\n");
     }
   }
   // update cursor pixel color
