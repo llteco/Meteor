@@ -5,7 +5,6 @@
 #include "meteor/core/pic_loader.h"
 #include "meteor/core/raw_loader.h"
 #include "meteor/core/tex_pool.h"
-#include "meteor/exp/tensor_worker.h"
 #include "meteor/ui/ui_window.h"
 #include "meteor/lodepng/lodepng.h"
 
@@ -345,7 +344,7 @@ void ExpActualBehave(ixr::engine::Env *e, ixr::engine::core::Renderer *r,
   static std::unique_ptr<Loader> g_loader;
   static std::unique_ptr<TexPool> g_texpool;
   static std::vector<char> g_buffer;
-  static std::unique_ptr<TensorWorker> g_worker;
+  //static std::unique_ptr<TensorWorker> g_worker;
   static std::unique_ptr<TexPool> g_subtex;
   bool use_dec = info.format_id == 0;
 
@@ -393,6 +392,7 @@ void ExpActualBehave(ixr::engine::Env *e, ixr::engine::core::Renderer *r,
     args->cursor_color.z = static_cast<float>((uint8_t)g_buffer[offset + 2]);
     args->cursor_color.w = static_cast<float>((uint8_t)g_buffer[offset + 3]);
   }
+  #if 0
   if (info.toggle_connect && !args->connected) {
     // connect to server
     TensorWorkerParam par;
@@ -421,4 +421,5 @@ void ExpActualBehave(ixr::engine::Env *e, ixr::engine::core::Renderer *r,
     g_subtex->Update(image_out.imagebytes);
     args->sub_tex_id[0] = g_subtex->GetTexID();
   }
+  #endif
 }
