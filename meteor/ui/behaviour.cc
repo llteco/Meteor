@@ -5,6 +5,7 @@
 #include "meteor/core/pic_loader.h"
 #include "meteor/core/raw_loader.h"
 #include "meteor/core/tex_pool.h"
+#include "meteor/exp/tensor_worker.h"
 #include "meteor/ui/ui_window.h"
 #include "meteor/lodepng/lodepng.h"
 
@@ -344,6 +345,8 @@ void ExpActualBehave(ixr::engine::Env *e, ixr::engine::core::Renderer *r,
   static std::unique_ptr<Loader> g_loader;
   static std::unique_ptr<TexPool> g_texpool;
   static std::vector<char> g_buffer;
+  static std::unique_ptr<TensorWorker> g_worker;
+  static std::unique_ptr<TexPool> g_subtex;
   bool use_dec = info.format_id == 0;
 
   if (info.toggle_open | info.toggle_format_change | info.toggle_refresh) {
@@ -389,5 +392,33 @@ void ExpActualBehave(ixr::engine::Env *e, ixr::engine::core::Renderer *r,
     args->cursor_color.y = static_cast<float>((uint8_t)g_buffer[offset + 1]);
     args->cursor_color.z = static_cast<float>((uint8_t)g_buffer[offset + 2]);
     args->cursor_color.w = static_cast<float>((uint8_t)g_buffer[offset + 3]);
+  }
+  if (info.toggle_connect && !args->connected) {
+    // connect to server
+    TensorWorkerParam par;
+    par.url = info.url;
+    try {
+      g_worker = std::make_unique<TensorWorker>(par);
+      args->connected = true;
+    } catch (const std::exception &ex) {
+      printf("error: can't connect to server. %s\n", ex.what());
+      args->connected = false;
+    }
+  }
+  if (info.toggle_compare && g_worker) {
+    int w = static_cast<int>(info.select_region.x);
+    int h = static_cast<int>(info.select_region.y);
+    g_subtex.reset(new TexPool(e, r, w * 4, h * 4, 0));
+    TensorImage image_in{new char[w * h * 4], w, h, 3};
+    for (int i = 0; i < h; i++) {
+      int offset =
+          static_cast<int>(info.select_offset.y * info.image_size[0] +
+                           info.select_offset.x + info.image_size[0] * i);
+      memcpy(image_in.imagebytes + w * i, g_buffer.data() + offset, w * 4);
+    }
+    TensorImage image_out = g_worker->Execute(image_in);
+    delete[] image_in.imagebytes;
+    g_subtex->Update(image_out.imagebytes);
+    args->sub_tex_id[0] = g_subtex->GetTexID();
   }
 }

@@ -20,11 +20,6 @@ ExpInfo ExpPanel(const ExpArgs &args) {
   if (ImGui::Button("Open File...", {w1, 20})) {
     ret_info.path = OnButtonOpenFile(ret_info.path);
     ret_info.toggle_open = true;
-    ret_info.scale = 1.f;
-    ret_info.image_pos_uv[0] = 0.f;
-    ret_info.image_pos_uv[1] = 0.f;
-    ret_info.image_pos_uv[2] = 1.f;
-    ret_info.image_pos_uv[3] = 1.f;
   }
   ImGui::PushItemWidth(w2);
   ImGui::SameLine();
@@ -32,7 +27,7 @@ ExpInfo ExpPanel(const ExpArgs &args) {
   ImGui::PopItemWidth();
   ImGui::SameLine();
   ret_info.toggle_reset = ImGui::Button("Reset");
-  if (ret_info.toggle_reset) {
+  if (ret_info.toggle_open || ret_info.toggle_reset) {
     ret_info.scale = 1.f;
     ret_info.image_pos_uv[0] = 0.f;
     ret_info.image_pos_uv[1] = 0.f;
@@ -92,7 +87,10 @@ ExpInfo ExpPanel(const ExpArgs &args) {
   ImGui::InputText("Model URL", ret_info.url, sizeof(ret_info.url));
   ImGui::SameLine();
   ret_info.toggle_connect = ImGui::Button("Connect") && !args.connected;
-  static ImVec2 select_region{};
+  ImGui::SameLine();
+  ret_info.toggle_compare = ImGui::Button("Compare");
+  auto &select_region = ret_info.select_region;
+  auto &select_offset = ret_info.select_offset;
   ImGui::BeginChild(
       "Image", {-260, 0}, true,
       ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoScrollbar);
@@ -109,23 +107,30 @@ ExpInfo ExpPanel(const ExpArgs &args) {
     ImGui::Image(args.tex_id, tex_sz, uv0, uv1);
     if (ImGui::IsItemHovered()) {
       // Draw focus rect
-      static ImVec2 rect;
-      if (io.KeyCtrl && io.MouseDown[0]) {
+      static ImVec2 rect, top_left;
+      if (!io.KeyCtrl && io.MouseDown[0]) {
+        top_left = io.MouseClickedPos[0];
+        auto bottom_right = io.MousePos;
         ImDrawList *draw_list = ImGui::GetWindowDrawList();
         draw_list->PushClipRectFullScreen();
-        auto top_left = io.MouseClickedPos[0];
-        auto bottom_right = io.MousePos;
         draw_list->AddQuad(top_left, {bottom_right.x, top_left.y}, bottom_right,
                            {top_left.x, bottom_right.y}, 0xFF0000FF);
         draw_list->PopClipRect();
-        rect.x = fabs(bottom_right.x - top_left.x);
-        rect.y = fabs(bottom_right.y - top_left.y);
+        if (top_left.x > bottom_right.x) std::swap(top_left.x, bottom_right.x);
+        if (top_left.y > bottom_right.y) std::swap(top_left.y, bottom_right.y);
+        rect.x = bottom_right.x - top_left.x;
+        rect.y = bottom_right.y - top_left.y;
+        if (rect.x > 64.f) rect.x = 64.f;
+        if (rect.y > 64.f) rect.y = 64.f;
       }
-      if (io.KeyCtrl && !io.MouseDown[0]) {
+      if (!io.KeyCtrl && !io.MouseDown[0]) {
         select_region = rect;
+        select_offset = top_left;
+        select_offset.x -= pos.x;
+        select_offset.y -= pos.y;
       }
       static float dx, dy;
-      if (io.MouseDown[0]) {
+      if (io.KeyCtrl && io.MouseDown[0]) {
         // Drag to move
         static ImVec2 prev_uv;
         if (io.MouseClicked[0]) {
@@ -150,14 +155,20 @@ ExpInfo ExpPanel(const ExpArgs &args) {
   }
   ImGui::EndChild();
   ImGui::SameLine();
-  ImGui::BeginChild(
-      "SubImage", {0, 0}, true,
-      ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoScrollbar);
-  ImGui::LabelText("Debug", "Experimenal!");
+  ImGui::BeginChild("SubImage", {0, 0}, true);
   if (args.tex_id) {
-    ImGui::Image(args.tex_id, select_region);
+    ImGui::Text("Bicubic:");
+    ImVec2 uv0 = {ret_info.image_pos_uv[0], ret_info.image_pos_uv[1]}, uv1;
+    uv0.x += select_offset.x / ret_info.image_size[0];
+    uv0.y += select_offset.y / ret_info.image_size[1];
+    uv1.x = uv0.x + select_region.x / ret_info.image_size[0];
+    uv1.y = uv0.y + select_region.y / ret_info.image_size[1];
+    // fixed to x4 scale
+    ImGui::Image(args.tex_id, {select_region.x * 4.f, select_region.y * 4.f},
+                 uv0, uv1);
   }
   if (args.sub_tex_id[0]) {
+    ImGui::Text("SISR:");
     ImVec2 sub_tex_sz;
     sub_tex_sz.x = static_cast<float>(args.subimage_size[0]);
     sub_tex_sz.y = static_cast<float>(args.subimage_size[1]);
