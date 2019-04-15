@@ -49,6 +49,7 @@ ImageCompareInfo ImageCompare(const ImageCompareArgs &args) {
   ret_info.toggle_reset = ImGui::Button("Compare");
   if (ret_info.toggle_reset) {
     ret_info.scale = 1.0f;
+    ret_info.fps = 30.f;
     ret_info.image_pos_uv[0] = 0.f;
     ret_info.image_pos_uv[1] = 0.f;
     ret_info.image_pos_uv[2] = 1.f;
@@ -101,6 +102,8 @@ ImageCompareInfo ImageCompare(const ImageCompareArgs &args) {
   }
   ret_info.toggle_refresh = ImGui::InputInt2("Image Size", ret_info.image_size);
   ImGui::SameLine();
+  ImGui::InputFloat("FPS", &ret_info.fps, 0.1, 0, 1);
+  ImGui::SameLine();
   ret_info.toggle_run ^= ImGui::Button("R", ImVec2{20, 20});
   if (ImGui::IsItemHovered()) {
     ImGui::SetTooltip("Run");
@@ -120,7 +123,7 @@ ImageCompareInfo ImageCompare(const ImageCompareArgs &args) {
   } else if (ret_info.toggle_next) {
     if (ret_info.frame_num < args.max_frame - 1) ret_info.frame_num++;
   } else if (ret_info.toggle_run) {
-    ret_info.frame_num++;
+    if (CheckFps(ret_info.fps)) ret_info.frame_num++;
     if (ret_info.frame_num >= args.max_frame - 1) ret_info.frame_num = 0;
   }
   ImGui::SameLine();

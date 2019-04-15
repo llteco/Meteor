@@ -14,6 +14,17 @@ enum { RGBA = 1, YUV, NV12, YV12 };
 constexpr float kStatusBarHeight = 50;
 constexpr float kTitleBarHeight = 88;
 
+inline bool CheckFps(float fps) {
+  int counts = static_cast<int>(roundf(60.f / fps));
+  static int cnt_last = 0;
+  cnt_last++;
+  if (cnt_last >= counts) {
+    cnt_last = 0;
+    return true;
+  }
+  return false;
+}
+
 struct TitleBarInfo {
   bool image_view;
   bool image_compare;
@@ -46,6 +57,7 @@ struct ImageViewerInfo {
   float image_pos_uv[4];
   int frame_num;
   float scale;
+  float fps;
   ImVec2 image_cursor;
 };
 
@@ -85,6 +97,7 @@ struct ImageCompareInfo {
   float image_pos_uv[4];
   int frame_num;
   float scale;
+  float fps;
   int image_index;
   std::string image_name;
   ImVec2 image_cursor;
