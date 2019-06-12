@@ -14,12 +14,17 @@ inline float ColorBytes(int cmode) {
   std::string fmt = kSupportedFormats[cmode];
   switch (cmode) {
     case RGBA:
-      return 4;
+    case ARGB:
+      return 4.f;
     case YUV:
-      return 3;
+      return 3.f;
     case NV12:
+    case NV21:
     case YV12:
+    case YV21:
       return 1.5f;
+    case Y:
+      return 1.f;
   }
   return 0.0f;
 }
@@ -83,15 +88,26 @@ inline char *PlanerToYUV(std::vector<char> &data, int cmode, int w, int h) {
   }
   switch (cmode) {
     case NV12:
+    case NV21:
       u_ptr = data.cbegin() + w * h + 1;
       v_ptr = data.cbegin() + w * h;
+      if (cmode == NV21) {
+        std::swap(u_ptr, v_ptr);
+      }
       sub_h = sub_v = 2;
       break;
     case YV12:
-      u_ptr = data.cbegin() + w * h;
-      v_ptr = data.cbegin() + w * h * 5 / 4;
+    case YV21:
+      v_ptr = data.cbegin() + w * h;
+      u_ptr = data.cbegin() + w * h * 5 / 4;
+      if (cmode == YV21) {
+        std::swap(v_ptr, u_ptr);
+      }
       sub_h = sub_v = 2;
       planar = true;
+      break;
+    case Y:
+      v_ptr = u_ptr = data.cend();
       break;
     default:
       buf.resize(static_cast<size_t>(w * h * ColorBytes(cmode)));
@@ -104,12 +120,12 @@ inline char *PlanerToYUV(std::vector<char> &data, int cmode, int w, int h) {
       if (u_ptr != data.cend()) {
         buf.push_back(*u_ptr);
       } else {
-        buf.push_back(0);
+        buf.push_back(128);
       }
       if (v_ptr != data.cend()) {
         buf.push_back(*v_ptr);
       } else {
-        buf.push_back(0);
+        buf.push_back(128);
       }
       ++y_ptr;
       if (col % sub_h == sub_h - 1) {
@@ -134,19 +150,44 @@ inline char *PlanerToYUV(std::vector<char> &data, int cmode, int w, int h) {
   return data.data();
 }
 
+inline char *NormalizeRGBA(std::vector<char> &data, int cmode, int w, int h) {
+  std::vector<char> buf;
+  auto head_ptr = data.cbegin();
+  switch (cmode) {
+  case ARGB:
+    for (int row = 0; row < h; row++) {
+      for (int col = 0; col < w; col++) {
+        buf.push_back(*(head_ptr + 1));
+        buf.push_back(*(head_ptr + 2));
+        buf.push_back(*(head_ptr + 3));
+        buf.push_back(*(head_ptr + 0));
+        head_ptr += 4;
+      }
+    }
+    break;
+  case RGBA:
+  default:
+    return data.data();
+  }
+}
+
 inline char *ToRGBA(std::vector<char> &data, int cmode, int w, int h) {
   std::vector<char> buf;
   switch (cmode) {
     case YUV:
       PackedToYUV(data, cmode, w, h);
       break;
+    case Y:
     case NV12:
+    case NV21:
     case YV12:
+    case YV21:
       PlanerToYUV(data, cmode, w, h);
       break;
+    case ARGB:
     case RGBA:
     default:
-      return data.data();
+      return NormalizeRGBA(data, cmode, w, h);
   }
   auto y_ptr = data.cbegin();
   auto u_ptr = data.cbegin() + 1;

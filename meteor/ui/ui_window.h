@@ -7,9 +7,12 @@
 #include "imgui/imgui.h"
 
 constexpr char *kSupportedFormats[] = {
-    "Decoder", "RGBA", "YUV", "NV12", "YV12",
+    "Decoder", "RGBA", "ARGB",
+    "YUV", "Y",
+    "NV12", "NV21", "YV12", "YV21",
 };
-enum { RGBA = 1, YUV, NV12, YV12 };
+// Same order as `kSupportedFormats`
+enum { RGBA = 1, ARGB, YUV, Y, NV12, NV21, YV12, YV21 };
 
 constexpr float kStatusBarHeight = 50;
 constexpr float kTitleBarHeight = 88;
