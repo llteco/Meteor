@@ -103,6 +103,12 @@ int main() {
   exp.window_flag = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse |
                     ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize;
 
+  PlayerArgs player{};
+  PlayerInfo playerr;
+  player.enable = false;
+  player.window_flag = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse |
+                       ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize;
+
   while (window->LoopState() != engine::WINDOW_STATE_HALT) {
     ImGui_ImplDX11_NewFrame(window->GetHandle());
     ImVec4 clear_color = ImColor(114, 144, 154);
@@ -118,6 +124,9 @@ int main() {
     exp.enable = tbr.exp;
     exp.parent_pos = tbr.pos;
     exp.parent_size = tbr.size;
+    player.enable = tbr.player;
+    player.parent_pos = tbr.pos;
+    player.parent_size = tbr.size;
     if (iv.enable) {
       ivr = ImageViewer(iv);
       ImageViewerBehave(env, ui_renderer, ivr, &iv);
@@ -148,6 +157,16 @@ int main() {
       sb.cursor_coord = expr.image_cursor;
       sb.scale = 1.f;
       sb.cursor_color = exp.cursor_color;
+    }
+    if (player.enable) {
+      playerr = PlayerPannel(player);
+      PlayerActualBehave(env, ui_renderer, playerr, &player);
+      sb.parent_pos = playerr.pos;
+      sb.parent_size = playerr.size;
+      sb.image_name = playerr.name;
+      sb.scale = playerr.scale;
+      sb.cursor_coord = playerr.image_cursor;
+      sb.cursor_color = playerr.cursor_color;
     }
     sbr = StatusBar(sb);
     // ImGui::ShowDemoWindow();

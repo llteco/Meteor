@@ -1,12 +1,13 @@
 #include <algorithm>
+#include <fstream>
 #include <map>
 #include <memory>
-#include <fstream>
+#include "meteor/core/cam_loader.h"
 #include "meteor/core/pic_loader.h"
 #include "meteor/core/raw_loader.h"
 #include "meteor/core/tex_pool.h"
-#include "meteor/ui/ui_window.h"
 #include "meteor/lodepng/lodepng.h"
+#include "meteor/ui/ui_window.h"
 
 using namespace ixr::engine;
 
@@ -39,8 +40,8 @@ inline float clip(float x, float min, float max) {
   return x;
 }
 
-inline std::vector<uint8_t> crop(const std::vector<char> &b, int pitch,
-                                 int u0, int v0, int u1, int v1) {
+inline std::vector<uint8_t> crop(const std::vector<char> &b, int pitch, int u0,
+                                 int v0, int u1, int v1) {
   if (u1 <= u0 || v1 <= v0) {
     printf("[!] wrong crop box!\n");
     return {};
@@ -91,7 +92,7 @@ inline char *PlanerToYUV(std::vector<char> &data, int cmode, int w, int h) {
     case NV21:
       u_ptr = data.cbegin() + w * h + 1;
       v_ptr = data.cbegin() + w * h;
-      if (cmode == NV21) {
+      if (cmode == NV12) {
         std::swap(u_ptr, v_ptr);
       }
       sub_h = sub_v = 2;
@@ -100,7 +101,7 @@ inline char *PlanerToYUV(std::vector<char> &data, int cmode, int w, int h) {
     case YV21:
       v_ptr = data.cbegin() + w * h;
       u_ptr = data.cbegin() + w * h * 5 / 4;
-      if (cmode == YV21) {
+      if (cmode == YV12) {
         std::swap(v_ptr, u_ptr);
       }
       sub_h = sub_v = 2;
@@ -154,20 +155,20 @@ inline char *NormalizeRGBA(std::vector<char> &data, int cmode, int w, int h) {
   std::vector<char> buf;
   auto head_ptr = data.cbegin();
   switch (cmode) {
-  case ARGB:
-    for (int row = 0; row < h; row++) {
-      for (int col = 0; col < w; col++) {
-        buf.push_back(*(head_ptr + 1));
-        buf.push_back(*(head_ptr + 2));
-        buf.push_back(*(head_ptr + 3));
-        buf.push_back(*(head_ptr + 0));
-        head_ptr += 4;
+    case ARGB:
+      for (int row = 0; row < h; row++) {
+        for (int col = 0; col < w; col++) {
+          buf.push_back(*(head_ptr + 1));
+          buf.push_back(*(head_ptr + 2));
+          buf.push_back(*(head_ptr + 3));
+          buf.push_back(*(head_ptr + 0));
+          head_ptr += 4;
+        }
       }
-    }
-    break;
-  case RGBA:
-  default:
-    return data.data();
+      break;
+    case RGBA:
+    default:
+      return data.data();
   }
 }
 
@@ -385,7 +386,7 @@ void ExpActualBehave(ixr::engine::Env *e, ixr::engine::core::Renderer *r,
   static std::unique_ptr<Loader> g_loader;
   static std::unique_ptr<TexPool> g_texpool;
   static std::vector<char> g_buffer;
-  //static std::unique_ptr<TensorWorker> g_worker;
+  // static std::unique_ptr<TensorWorker> g_worker;
   static std::unique_ptr<TexPool> g_subtex;
   bool use_dec = info.format_id == 0;
 
@@ -433,7 +434,7 @@ void ExpActualBehave(ixr::engine::Env *e, ixr::engine::core::Renderer *r,
     args->cursor_color.z = static_cast<float>((uint8_t)g_buffer[offset + 2]);
     args->cursor_color.w = static_cast<float>((uint8_t)g_buffer[offset + 3]);
   }
-  #if 0
+#if 0
   if (info.toggle_connect && !args->connected) {
     // connect to server
     TensorWorkerParam par;
@@ -462,5 +463,66 @@ void ExpActualBehave(ixr::engine::Env *e, ixr::engine::core::Renderer *r,
     g_subtex->Update(image_out.imagebytes);
     args->sub_tex_id[0] = g_subtex->GetTexID();
   }
-  #endif
+#endif
+}
+
+void PlayerActualBehave(ixr::engine::Env *e, ixr::engine::core::Renderer *r,
+                        const PlayerInfo &info, PlayerArgs *args) {
+  static ixr::app::helper::MfHelper mfh;
+  static ixr::app::helper::MfHelper::TypeLists cam_types;
+  static std::unique_ptr<TexPool> g_texpool;
+  static std::vector<char> g_buffer;
+  static int format_id;
+  if (args->cams.empty()) {
+    args->cams = mfh.EnumVideoCaptureDevices();
+  }
+  if (info.toggle_reload) {
+    mfh.EnumVideoCaptureDevices(args->cams[info.cam_id]);
+    cam_types = mfh.EnumCaptureTypes();
+    args->cam_types.clear();
+    for (auto &t : cam_types) {
+      if (t == MFVideoFormat_NV12) {
+        args->cam_types.push_back("NV12");
+      } else if (t == MFVideoFormat_YV12) {
+        args->cam_types.push_back("YV12");
+      }
+    }
+    auto itr = cam_types.begin();
+    for (int i = 0; i < info.type_id; i++) ++itr;
+    mfh.EnumCaptureTypes(*itr);
+    if (*itr == MFVideoFormat_NV12) {
+      format_id = 5;
+    } else if (*itr == MFVideoFormat_YV12) {
+      format_id = 7;
+    }
+    mfh.QueryFrameSize(&args->image_size[0], &args->image_size[1]);
+    args->playing = 0;
+  }
+  if (info.toggle_play) {
+    try {
+      g_texpool.reset(
+          new TexPool(e, r, args->image_size[0], args->image_size[1], 0));
+      args->tex_id = g_texpool->GetTexID();
+      args->playing ^= 1;
+      if (!args->playing) {
+        mfh.EnumVideoCaptureDevices(args->cams[info.cam_id]);
+      }
+    } catch (...) {
+      printf("warning: exception at %s:%d\n", __FUNCTION__, __LINE__);
+    }
+  }
+  if (args->playing) {
+    BYTE *raw_ptr;
+    UINT length;
+    HRESULT hr = mfh.LockFrame(&raw_ptr, &length);
+    if (g_buffer.size() < length) {
+      g_buffer.resize(length);
+    }
+    if (SUCCEEDED(hr)) {
+      memcpy_s(g_buffer.data(), g_buffer.size(), raw_ptr, length);
+      mfh.UnlockFrame();
+    }
+    g_texpool->Update(
+        ToRGBA(g_buffer, format_id, info.image_size[0], info.image_size[1]));
+  }
 }

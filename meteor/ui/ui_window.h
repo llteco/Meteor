@@ -7,9 +7,7 @@
 #include "imgui/imgui.h"
 
 constexpr char *kSupportedFormats[] = {
-    "Decoder", "RGBA", "ARGB",
-    "YUV", "Y",
-    "NV12", "NV21", "YV12", "YV21",
+    "Decoder", "RGBA", "ARGB", "YUV", "Y", "NV12", "NV21", "YV12", "YV21",
 };
 // Same order as `kSupportedFormats`
 enum { RGBA = 1, ARGB, YUV, Y, NV12, NV21, YV12, YV21 };
@@ -32,6 +30,7 @@ struct TitleBarInfo {
   bool image_view;
   bool image_compare;
   bool exp;
+  bool player;
   ImVec2 pos;
   ImVec2 size;
 };
@@ -190,4 +189,36 @@ ExpInfo ExpPanel(const ExpArgs &args);
 
 void ExpActualBehave(ixr::engine::Env *e, ixr::engine::core::Renderer *r,
                      const ExpInfo &info, ExpArgs *args);
+
+struct PlayerInfo {
+  ImVec2 pos;
+  ImVec2 size;
+  bool toggle_reload;
+  bool toggle_play;
+  int cam_id;
+  int type_id;
+  std::string name;
+  float scale;
+  ImVec2 image_cursor;
+  ImVec4 cursor_color;
+  int image_size[2];
+  float image_pos_uv[4];
+};
+
+struct PlayerArgs {
+  bool enable;
+  bool playing;
+  uint32_t window_flag;
+  ImVec2 parent_pos;
+  ImVec2 parent_size;
+  std::vector<std::string> cams;
+  std::vector<std::string> cam_types;
+  uint32_t image_size[2];
+  ImTextureID tex_id;
+};
+
+PlayerInfo PlayerPannel(const PlayerArgs &args);
+
+void PlayerActualBehave(ixr::engine::Env *e, ixr::engine::core::Renderer *r,
+                        const PlayerInfo &info, PlayerArgs *args);
 #endif  // METEOR_UI_UI_WINDOW_H_

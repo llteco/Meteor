@@ -21,10 +21,19 @@ TitleBarInfo TitleBar(const TitleBarArgs &args) {
     ret_info.image_compare = true;
     ret_info.image_view = false;
     ret_info.exp = false;
+    ret_info.player= false;
   }
   ImGui::SameLine();
   if (ImGui::Button("EXP")) {
     ret_info.exp = true;
+    ret_info.image_view = false;
+    ret_info.image_compare = false;
+    ret_info.player= false;
+  }
+  ImGui::SameLine();
+  if (ImGui::Button("Player")) {
+    ret_info.player= true;
+    ret_info.exp = false;
     ret_info.image_view = false;
     ret_info.image_compare = false;
   }
