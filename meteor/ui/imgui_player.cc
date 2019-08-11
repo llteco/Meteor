@@ -36,7 +36,13 @@ PlayerInfo PlayerPannel(const PlayerArgs &args) {
   info.toggle_play = ImGui::Button("Play");
   if (info.toggle_play) {
     info.scale = 1;
+    info.image_pos_uv[0] = 0.f;
+    info.image_pos_uv[1] = 0.f;
+    info.image_pos_uv[2] = 1.f;
+    info.image_pos_uv[3] = 1.f;
   }
+  ImGui::SameLine();
+  ImGui::Checkbox("Revert", &info.toggle_revert);
   ImGui::PopItemWidth();
   ImGui::SameLine();
   if (args.playing) {
@@ -53,8 +59,13 @@ PlayerInfo PlayerPannel(const PlayerArgs &args) {
     ImVec2 tex_sz, uv0, uv1;
     tex_sz.x = static_cast<float>(info.image_size[0]) * info.scale;
     tex_sz.y = static_cast<float>(info.image_size[1]) * info.scale;
-    uv0 = {info.image_pos_uv[2], info.image_pos_uv[1]};
-    uv1 = {info.image_pos_uv[0], info.image_pos_uv[3]};
+    if (info.toggle_revert) {
+      uv0 = {info.image_pos_uv[2], info.image_pos_uv[1]};
+      uv1 = {info.image_pos_uv[0], info.image_pos_uv[3]};
+    } else {
+      uv0 = {info.image_pos_uv[0], info.image_pos_uv[1]};
+      uv1 = {info.image_pos_uv[2], info.image_pos_uv[3]};
+    }
     auto &io = ImGui::GetIO();
     auto pos = ImGui::GetCursorScreenPos();
     ImGui::Image(args.tex_id, tex_sz, uv0, uv1);
@@ -67,20 +78,25 @@ PlayerInfo PlayerPannel(const PlayerArgs &args) {
         // Drag to move
         static ImVec2 prev_uv;
         if (io.MouseClicked[0]) {
-          prev_uv = uv0;
+          prev_uv = {info.image_pos_uv[0], info.image_pos_uv[1]};
         }
         dx = io.MouseClickedPos[0].x - io.MousePos.x;
         dy = io.MouseClickedPos[0].y - io.MousePos.y;
+        if (info.toggle_revert) dx *= -1.f;
         dx += prev_uv.x * tex_sz.x;
         dy += prev_uv.y * tex_sz.y;
       }
       auto boarder = ImGui::GetWindowSize();
-      dx = std::min(std::max(0.f, dx), std::max(0.f, tex_sz.x - boarder.x));
+      if (info.toggle_revert) {
+        dx = std::max(std::min(0.f, dx), std::min(0.f, boarder.x - tex_sz.x));
+      } else {
+        dx = std::min(std::max(0.f, dx), std::max(0.f, tex_sz.x - boarder.x));
+      }
       dy = std::min(std::max(0.f, dy), std::max(0.f, tex_sz.y - boarder.y));
-      info.image_pos_uv[0] = 1 + dx / tex_sz.x;
       info.image_pos_uv[1] = dy / tex_sz.y;
-      info.image_pos_uv[2] = dx / tex_sz.x;
       info.image_pos_uv[3] = 1 + dy / tex_sz.y;
+      info.image_pos_uv[0] = dx / tex_sz.x;
+      info.image_pos_uv[2] = 1 + dx / tex_sz.x;
       // update cursor coordinate
       info.image_cursor.x = (io.MousePos.x - pos.x + dx) / info.scale;
       info.image_cursor.y = (io.MousePos.y - pos.y + dy) / info.scale;

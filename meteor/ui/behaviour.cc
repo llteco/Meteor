@@ -485,6 +485,8 @@ void PlayerActualBehave(ixr::engine::Env *e, ixr::engine::core::Renderer *r,
         args->cam_types.push_back("NV12");
       } else if (t == MFVideoFormat_YV12) {
         args->cam_types.push_back("YV12");
+      } else {
+        args->cam_types.push_back("Unsupported");
       }
     }
     auto itr = cam_types.begin();
@@ -500,12 +502,22 @@ void PlayerActualBehave(ixr::engine::Env *e, ixr::engine::core::Renderer *r,
   }
   if (info.toggle_play) {
     try {
-      g_texpool.reset(
-          new TexPool(e, r, args->image_size[0], args->image_size[1], 0));
-      args->tex_id = g_texpool->GetTexID();
       args->playing ^= 1;
       if (!args->playing) {
         mfh.EnumVideoCaptureDevices(args->cams[info.cam_id]);
+      } else {
+        auto itr = cam_types.begin();
+        for (int i = 0; i < info.type_id; i++) ++itr;
+        mfh.EnumCaptureTypes(*itr);
+        if (*itr == MFVideoFormat_NV12) {
+          format_id = 5;
+        } else if (*itr == MFVideoFormat_YV12) {
+          format_id = 7;
+        }
+        mfh.QueryFrameSize(&args->image_size[0], &args->image_size[1]);
+        g_texpool.reset(
+            new TexPool(e, r, args->image_size[0], args->image_size[1], 0));
+        args->tex_id = g_texpool->GetTexID();
       }
     } catch (...) {
       printf("warning: exception at %s:%d\n", __FUNCTION__, __LINE__);
@@ -515,14 +527,14 @@ void PlayerActualBehave(ixr::engine::Env *e, ixr::engine::core::Renderer *r,
     BYTE *raw_ptr;
     UINT length;
     HRESULT hr = mfh.LockFrame(&raw_ptr, &length);
-    if (g_buffer.size() < length) {
-      g_buffer.resize(length);
-    }
     if (SUCCEEDED(hr)) {
+      if (g_buffer.size() < length) {
+        g_buffer.resize(length);
+      }
       memcpy_s(g_buffer.data(), g_buffer.size(), raw_ptr, length);
       mfh.UnlockFrame();
+      g_texpool->Update(
+          ToRGBA(g_buffer, format_id, info.image_size[0], info.image_size[1]));
     }
-    g_texpool->Update(
-        ToRGBA(g_buffer, format_id, info.image_size[0], info.image_size[1]));
   }
 }

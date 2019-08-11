@@ -195,6 +195,7 @@ struct PlayerInfo {
   ImVec2 size;
   bool toggle_reload;
   bool toggle_play;
+  bool toggle_revert;
   int cam_id;
   int type_id;
   std::string name;
