@@ -77,9 +77,9 @@ PlayerInfo PlayerPannel(const PlayerArgs &args) {
       auto boarder = ImGui::GetWindowSize();
       dx = std::min(std::max(0.f, dx), std::max(0.f, tex_sz.x - boarder.x));
       dy = std::min(std::max(0.f, dy), std::max(0.f, tex_sz.y - boarder.y));
-      info.image_pos_uv[0] = dx / tex_sz.x;
+      info.image_pos_uv[0] = 1 + dx / tex_sz.x;
       info.image_pos_uv[1] = dy / tex_sz.y;
-      info.image_pos_uv[2] = 1 + dx / tex_sz.x;
+      info.image_pos_uv[2] = dx / tex_sz.x;
       info.image_pos_uv[3] = 1 + dy / tex_sz.y;
       // update cursor coordinate
       info.image_cursor.x = (io.MousePos.x - pos.x + dx) / info.scale;
