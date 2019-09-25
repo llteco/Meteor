@@ -1,6 +1,6 @@
 #include "meteor/core/decoder.h"
 #include <Windows.h>
-
+#include <stdexcept>
 
 inline std::string ParseExt(std::string filename) {
   auto pos = filename.find_last_of('.');

@@ -1,7 +1,7 @@
 #include "meteor/core/tex_pool.h"
-using namespace ixr::engine;
+using namespace ll::engine;
 
-TexPool::TexPool(ixr::engine::Env *env, ixr::engine::core::Renderer *renderer,
+TexPool::TexPool(ll::engine::Env *env, ll::engine::core::Renderer *renderer,
                  int width, int height, int cmode) {
   env_ = env;
   rdr_ = renderer;

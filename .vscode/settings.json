@@ -87,5 +87,6 @@
         "xloctime": "cpp"
     },
     "cmake.configureOnOpen": true,
+    "cmake.buildDirectory": "${workspaceRoot}/../Builds/meteor",
     "C_Cpp.configurationWarnings": "Disabled"
 }

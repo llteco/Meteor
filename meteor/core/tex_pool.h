@@ -2,14 +2,13 @@
 #define METEOR_CORE_TEX_POOL_H_
 #include <deque>
 #include <memory>
-#include "graphic/engine/engine.h"
+#include "ll_graphic/engine/engine.h"
 #include "meteor/core/loader.h"
-
 
 class TexPool {
  public:
-  TexPool(ixr::engine::Env *env, ixr::engine::core::Renderer *renderer,
-          int width, int height, int cmode);
+  TexPool(ll::engine::Env *env, ll::engine::core::Renderer *renderer, int width,
+          int height, int cmode);
   ~TexPool();
 
   void *GetTexID();
@@ -17,10 +16,10 @@ class TexPool {
   void Update(char *data);
 
  private:
-  ixr::engine::Env *env_;
-  ixr::engine::core::Renderer *rdr_;
-  ixr::engine::core::Texture *tex_;
-  std::deque<ixr::engine::core::Texture *> stg_;
+  ll::engine::Env *env_;
+  ll::engine::core::Renderer *rdr_;
+  ll::engine::core::Texture *tex_;
+  std::deque<ll::engine::core::Texture *> stg_;
 };
 
 #endif  // METEOR_CORE_TEX_POOL_H_
