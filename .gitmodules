@@ -1,0 +1,6 @@
+[submodule "scripts"]
+	path = scripts
+	url = https://github.com/llteco/scripts.git
+[submodule "ll_graphic"]
+	path = ll_graphic
+	url = https://github.com/llteco/ll_graphic
