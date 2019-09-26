@@ -1,10 +1,14 @@
+/****************************************
+ * Copyright (c) 2019 Wenyi Tang
+ * Author: Wenyi Tang
+ * E-mail: wenyitang@outlook.com
+ * Description: UI for comparator
+ ****************************************/
 #include <algorithm>
 #include "meteor/ui/ui_window.h"
 
-extern std::vector<std::string> OnButtonOpenFile();
-
-extern std::string OnButtonSaveFile(std::string);
-
+namespace mt {
+namespace ui {
 void ArrangeImages(const ImageCompareArgs &args, ImageCompareInfo *info);
 
 ImageCompareInfo ImageCompare(const ImageCompareArgs &args) {
@@ -71,8 +75,8 @@ ImageCompareInfo ImageCompare(const ImageCompareArgs &args) {
         auto pos1 = name.find_last_of('\\');
         auto pos2 = name.find_last_of('.');
         if (pos1 < name.size() && pos2 < name.size()) {
-          savefile = prefix + "_" + std::string(name.begin() + pos1 + 1,
-                                                name.begin() + pos2);
+          savefile = prefix + "_" +
+                     std::string(name.begin() + pos1 + 1, name.begin() + pos2);
           savefile += ".png";
         }
         ret_info.saved_paths.push_back(savefile);
@@ -229,3 +233,5 @@ void ArrangeImages(const ImageCompareArgs &args, ImageCompareInfo *info) {
     ImGui::EndChild();
   }
 }
+}  // namespace ui
+}  // namespace mt

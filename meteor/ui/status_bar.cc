@@ -1,6 +1,14 @@
+/****************************************
+ * Copyright (c) 2019 Wenyi Tang
+ * Author: Wenyi Tang
+ * E-mail: wenyitang@outlook.com
+ * Description: UI for status bar
+ ****************************************/
 #include <algorithm>
 #include "meteor/ui/ui_window.h"
 
+namespace mt {
+namespace ui {
 StatusBarInfo StatusBar(const StatusBarArgs &args) {
   static StatusBarInfo ret_info{};
   ImGui::Begin(__FILE__, nullptr,
@@ -27,3 +35,5 @@ StatusBarInfo StatusBar(const StatusBarArgs &args) {
   ImGui::End();
   return ret_info;
 }
+}  // namespace ui
+}  // namespace mt

@@ -1,4 +1,12 @@
+/****************************************
+ * Copyright (c) 2019 Wenyi Tang
+ * Author: Wenyi Tang
+ * E-mail: wenyitang@outlook.com
+ * Description: Adapter to LL_GFX for IMGUI
+ ****************************************/
 #include "imgui_meteor.h"
+
+using namespace ll::engine;
 
 static ImGuiMouseCursor g_LastMouseCursor = ImGuiMouseCursor_COUNT;
 

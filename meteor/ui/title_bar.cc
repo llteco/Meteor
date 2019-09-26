@@ -1,5 +1,13 @@
+/****************************************
+ * Copyright (c) 2019 Wenyi Tang
+ * Author: Wenyi Tang
+ * E-mail: wenyitang@outlook.com
+ * Description: UI for title bar
+ ****************************************/
 #include "meteor/ui/ui_window.h"
 
+namespace mt {
+namespace ui {
 TitleBarInfo TitleBar(const TitleBarArgs &args) {
   static TitleBarInfo ret_info{true};
   ImGui::Begin(args.name.c_str(), nullptr,
@@ -21,18 +29,18 @@ TitleBarInfo TitleBar(const TitleBarArgs &args) {
     ret_info.image_compare = true;
     ret_info.image_view = false;
     ret_info.exp = false;
-    ret_info.player= false;
+    ret_info.player = false;
   }
   ImGui::SameLine();
   if (ImGui::Button("EXP")) {
     ret_info.exp = true;
     ret_info.image_view = false;
     ret_info.image_compare = false;
-    ret_info.player= false;
+    ret_info.player = false;
   }
   ImGui::SameLine();
   if (ImGui::Button("Player")) {
-    ret_info.player= true;
+    ret_info.player = true;
     ret_info.exp = false;
     ret_info.image_view = false;
     ret_info.image_compare = false;
@@ -41,3 +49,5 @@ TitleBarInfo TitleBar(const TitleBarArgs &args) {
   ImGui::End();
   return ret_info;
 }
+}  // namespace ui
+}  // namespace mt

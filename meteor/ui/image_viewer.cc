@@ -1,8 +1,14 @@
+/****************************************
+ * Copyright (c) 2019 Wenyi Tang
+ * Author: Wenyi Tang
+ * E-mail: wenyitang@outlook.com
+ * Description: UI for image viewer
+ ****************************************/
 #include <algorithm>
 #include "meteor/ui/ui_window.h"
 
-extern std::string OnButtonOpenFile(std::string pth);
-
+namespace mt {
+namespace ui {
 ImageViewerInfo ImageViewer(const ImageViewerArgs &args) {
   static ImageViewerInfo ret_info{};
   ret_info.toggle_open = false;
@@ -162,3 +168,5 @@ ImageViewerInfo ImageViewer(const ImageViewerArgs &args) {
   ImGui::End();
   return ret_info;
 }
+}  // namespace ui
+}  // namespace mt

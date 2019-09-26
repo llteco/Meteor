@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.5.1)
-project(meteor VERSION 0.0.0.2)
+file(STRINGS version version)
+list(GET version 0 version)
+string(TIMESTAMP date %Y%m%d)
+string(APPEND version ".${date}")
+project(meteor VERSION ${version})
 
 # enable folder scope in ide
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -16,13 +20,13 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib CACHE PATH "lib dir
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin CACHE PATH "exe dir")
 set(CMAKE_DEBUG_POSTFIX "d")
 
-option(M_ENABLE_EXPERIMENAL_FUNC "Private" OFF)
+option(MT_ENABLE_EXPERIMENAL_FUNC "Private" OFF)
 
 include_directories(${PROJECT_SOURCE_DIR})
 include(imgui)
 include(zlib)
 include(png)
-if(M_ENABLE_EXPERIMENAL_FUNC)
+if(MT_ENABLE_EXPERIMENAL_FUNC)
   include(protobuf)
   include(grpc)
   include(tensorflow)

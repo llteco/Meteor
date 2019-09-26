@@ -1,10 +1,16 @@
-
+/****************************************
+ * Copyright (c) 2017-2019 Wenyi Tang
+ * Author: Wenyi Tang
+ * E-mail: wenyitang@outlook.com
+ * Description: Texture loader
+ ****************************************/
 #ifndef METEOR_CORE_LOADER_H_
 #define METEOR_CORE_LOADER_H_
-#include <string>
 #include <fstream>
+#include <string>
 #include <vector>
 
+namespace mt {
 class Loader {
  public:
   Loader(std::string path);  //< Open File
@@ -15,7 +21,9 @@ class Loader {
   virtual std::vector<int> Size() = 0;
   virtual int Length() = 0;
   virtual std::vector<char> ReadF() = 0;
+
  protected:
   std::ifstream fp_;
 };
+}  // namespace mt
 #endif  // METEOR_CORE_LOADER_H_

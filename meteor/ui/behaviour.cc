@@ -10,7 +10,8 @@
 #include "meteor/ui/ui_window.h"
 
 using namespace ll::engine;
-
+namespace mt {
+namespace ui {
 inline float ColorBytes(int cmode) {
   std::string fmt = kSupportedFormats[cmode];
   switch (cmode) {
@@ -468,8 +469,8 @@ void ExpActualBehave(ll::engine::Env *e, ll::engine::core::Renderer *r,
 
 void PlayerActualBehave(ll::engine::Env *e, ll::engine::core::Renderer *r,
                         const PlayerInfo &info, PlayerArgs *args) {
-  static ixr::app::helper::MfHelper mfh;
-  static ixr::app::helper::MfHelper::TypeLists cam_types;
+  static MfHelper mfh;
+  static MfHelper::TypeLists cam_types;
   static std::unique_ptr<TexPool> g_texpool;
   static std::vector<char> g_buffer;
   static int format_id;
@@ -497,7 +498,7 @@ void PlayerActualBehave(ll::engine::Env *e, ll::engine::core::Renderer *r,
     } else if (*itr == MFVideoFormat_YV12) {
       format_id = 7;
     }
-    mfh.QueryFrameSize(&args->image_size[0], &args->image_size[1]);
+    mfh.QueryFrameSize(&args->image_size[0], &args->image_size[1], nullptr);
     args->playing = 0;
   }
   if (info.toggle_play) {
@@ -514,7 +515,7 @@ void PlayerActualBehave(ll::engine::Env *e, ll::engine::core::Renderer *r,
         } else if (*itr == MFVideoFormat_YV12) {
           format_id = 7;
         }
-        mfh.QueryFrameSize(&args->image_size[0], &args->image_size[1]);
+        mfh.QueryFrameSize(&args->image_size[0], &args->image_size[1], nullptr);
         g_texpool.reset(
             new TexPool(e, r, args->image_size[0], args->image_size[1], 0));
         args->tex_id = g_texpool->GetTexID();
@@ -538,3 +539,5 @@ void PlayerActualBehave(ll::engine::Env *e, ll::engine::core::Renderer *r,
     }
   }
 }
+}  // namespace ui
+}  // namespace mt

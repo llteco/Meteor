@@ -1,21 +1,26 @@
+/****************************************
+ * Copyright (c) 2019 Wenyi Tang
+ * Author: Wenyi Tang
+ * E-mail: wenyitang@outlook.com
+ * Description:
+ ****************************************/
+#include "mt_config.h"
 #include "imgui/imgui.h"
 #include "ll_graphic/engine/engine.h"
 #include "meteor/ui/imgui_meteor.h"
 #include "meteor/ui/ui_window.h"
-#include "meteor/ui/windows_dialog.h"
-
-using namespace ixr;
+#include "meteor/ui/win32dialog.h"
 
 std::string OnButtonOpenFile(std::string pth) {
-  return ixr::utils::CallOpenFileDialog(pth);
+  return mt::ui::CallOpenFileDialog(pth);
 }
 
 std::vector<std::string> OnButtonOpenFile() {
-  return ixr::utils::CallOpenMultipleFileDialog();
+  return mt::ui::CallOpenMultipleFileDialog();
 }
 
 std::string OnButtonSaveFile(std::string auto_name) {
-  return ixr::utils::CallSaveFileDialog(auto_name);
+  return mt::ui::CallSaveFileDialog(auto_name);
 }
 
 ll::engine::window::Window *CreateUIWindow(ll::engine::Env *env) {
@@ -33,7 +38,17 @@ ll::engine::window::Window *CreateUIWindow(ll::engine::Env *env) {
   return window;
 }
 
-int main() {
+constexpr int FLAG_FIXED = ImGuiWindowFlags_NoMove |
+                           ImGuiWindowFlags_NoCollapse |
+                           ImGuiWindowFlags_NoResize;
+
+constexpr int FLAG_FIXED_BARE = FLAG_FIXED | ImGuiWindowFlags_NoTitleBar;
+
+#ifdef MT_NO_CONSOLE
+int WINAPI wWinMain(HINSTANCE hinst, HINSTANCE, LPWSTR, INT) {
+#else
+int main(int argc, char *argv[]) {
+#endif
   auto env = ll::engine::Env::NewEnvironment(ll::engine::GRAPHIC_API_DX11);
   auto window = CreateUIWindow(env);
   // Initialize Direct3D
@@ -73,41 +88,36 @@ int main() {
   ImGui::StyleColorsDark();
   ImGui_ImplDX11_CreateDeviceObjects(env, ui_renderer);
 
-  TitleBarArgs tb{};
-  TitleBarInfo tbr;
-  tb.name = "Meteor v0.0.0.1";
-  tb.window_flag = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse |
-                   ImGuiWindowFlags_NoResize;
+  mt::ui::TitleBarArgs tb{};
+  mt::ui::TitleBarInfo tbr;
+  tb.name = "Meteor v";
+  tb.name += METEOR_VERSION;
+  tb.window_flag = FLAG_FIXED;
 
-  ImageViewerArgs iv{};
-  ImageViewerInfo ivr;
+  mt::ui::ImageViewerArgs iv{};
+  mt::ui::ImageViewerInfo ivr;
   iv.enable = true;
   iv.max_frame = 1000;
-  iv.window_flag = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse |
-                   ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize;
+  iv.window_flag = FLAG_FIXED_BARE;
 
-  ImageCompareArgs ic{};
-  ImageCompareInfo icr;
+  mt::ui::ImageCompareArgs ic{};
+  mt::ui::ImageCompareInfo icr;
   ic.enable = false;
-  ic.window_flag = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse |
-                   ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize;
+  ic.window_flag = FLAG_FIXED_BARE;
 
-  StatusBarArgs sb{};
-  StatusBarInfo sbr;
-  sb.window_flag = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse |
-                   ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize;
+  mt::ui::StatusBarArgs sb{};
+  mt::ui::StatusBarInfo sbr;
+  sb.window_flag = FLAG_FIXED_BARE;
 
-  ExpArgs exp{};
-  ExpInfo expr;
+  mt::ui::ExpArgs exp{};
+  mt::ui::ExpInfo expr;
   exp.enable = false;
-  exp.window_flag = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse |
-                    ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize;
+  exp.window_flag = FLAG_FIXED_BARE;
 
-  PlayerArgs player{};
-  PlayerInfo playerr;
+  mt::ui::PlayerArgs player{};
+  mt::ui::PlayerInfo playerr;
   player.enable = false;
-  player.window_flag = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse |
-                       ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize;
+  player.window_flag = FLAG_FIXED_BARE;
 
   while (window->LoopState() != ll::engine::WINDOW_STATE_HALT) {
     ImGui_ImplDX11_NewFrame(window->GetHandle());
@@ -169,7 +179,6 @@ int main() {
       sb.cursor_color = playerr.cursor_color;
     }
     sbr = StatusBar(sb);
-    // ImGui::ShowDemoWindow();
     ImGui::Render();
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData(), env, ui_renderer);
     swapchain->Present();

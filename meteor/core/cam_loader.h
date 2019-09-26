@@ -6,35 +6,21 @@ Email       : wenyi.tang@intel.com
 Created     : December 1st, 2017
 changelog
 ********************************************************************/
-#ifndef IXR_APP_IXR_PLAYER_INPUT_READER_MF_HELPER_H_
-#define IXR_APP_IXR_PLAYER_INPUT_READER_MF_HELPER_H_
-#include <Windows.h>
-#include <mfapi.h>
-#include <mfidl.h>
-#include <mfreadwrite.h>
-#include <wrl/client.h>
+#ifndef METEOR_CORE_CAM_LOADER_H_
+#define METEOR_CORE_CAM_LOADER_H_
 #include <set>
 #include <string>
 #include <vector>
+#include "meteor/core/mf_pch.h"
 
-#pragma comment(lib, "dxva2.lib")
-#pragma comment(lib, "evr.lib")
-#pragma comment(lib, "mf.lib")
-#pragma comment(lib, "mfplat.lib")
-#pragma comment(lib, "mfplay.lib")
-#pragma comment(lib, "mfreadwrite.lib")
-#pragma comment(lib, "mfuuid.lib")
-
-namespace ixr {
-namespace app {
-namespace helper {
-
+// M$ MediaFoundation Helper
+namespace mt {
 struct GUID_CMP : public GUID {
-  uint64_t HighPart(const GUID &g) const {
+  uint64_t HighPart(const GUID& g) const {
     return (static_cast<uint64_t>(g.Data1) << 32) | (g.Data2 << 16) | g.Data3;
   }
 
-  uint64_t LowPart(const GUID &g) const {
+  uint64_t LowPart(const GUID& g) const {
     uint64_t low = 0;
     for (int i = 0; i < 8; i++) {
       low |= (static_cast<uint64_t>(g.Data4[i]) << (8 * i));
@@ -68,15 +54,27 @@ class MfHelper {
 
   ~MfHelper();
 
+  /**
+   * @brief list all camera capture devices, specify a device name to use it
+   *
+   * @param [in] devname: if empty will return all device names
+   * @return DeviceLists
+   */
   DeviceLists EnumVideoCaptureDevices(const std::string devname = "");
 
-  TypeLists EnumCaptureTypes(const GUID type = GUID());
+  TypeLists EnumCaptureTypes(const GUID type = GUID(), int w = 0, int h = 0,
+                             float fps = 0);
 
-  HRESULT QueryFrameSize(UINT *width, UINT *height);
+  HRESULT QueryFrameSize(UINT* width, UINT* height, FLOAT* fps);
 
-  HRESULT LockFrame(BYTE **ptr, UINT *length);
+  HRESULT LockFrame(BYTE** ptr, UINT* length);
 
   HRESULT UnlockFrame();
+
+  Microsoft::WRL::ComPtr<ID3D11Device> InitializeD3DManager(
+      ID3D11Device* = nullptr);
+
+  Microsoft::WRL::ComPtr<ID3D11Texture2D> GetSampleTex();
 
  private:
   Microsoft::WRL::ComPtr<IMFAttributes> attr_;
@@ -85,9 +83,9 @@ class MfHelper {
   Microsoft::WRL::ComPtr<IMFMediaType> type_;
   Microsoft::WRL::ComPtr<IMFSample> sample_;
   Microsoft::WRL::ComPtr<IMFMediaBuffer> buffer_;
+  Microsoft::WRL::ComPtr<IMFDXGIDeviceManager> dxgiman_;
+  Microsoft::WRL::ComPtr<ID3D11Device> device_;
 };
 
-}  // namespace helper
-}  // namespace app
-}  // namespace ixr
-#endif  // IXR_APP_IXR_PLAYER_INPUT_READER_MF_HELPER_H_
+}  // namespace mt
+#endif  // METEOR_CORE_CAM_LOADER_H_

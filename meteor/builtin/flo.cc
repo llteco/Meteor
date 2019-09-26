@@ -10,12 +10,16 @@
 #include <stdint.h>
 #include <cmath>
 #include <fstream>
+#include <stdexcept>
 #include <string>
 #include <vector>
-#include "export.h"
+#include "meteor/builtin/builtin.h"
 
-using namespace std;
+using std::ifstream;
+using std::string;
+using std::vector;
 
+namespace mt {
 template <class T>
 inline T clip(T value, T min, T max) {
   if (max < min) max = min;
@@ -141,11 +145,11 @@ class VizFlow {
 
 VizFlow::VizFlow(string file) {
   constexpr float kMagic = 202021.25f;
-  ifstream fd(file, ios::binary);
+  ifstream fd(file, std::ios::binary);
   float magic;
   fd.read((char *)&magic, sizeof(magic));
   if (magic != kMagic) {
-    throw runtime_error("Magic number incorrect. Invalid .flo file");
+    throw std::runtime_error("Magic number incorrect. Invalid .flo file");
   }
   int w, h;
   fd.read((char *)&w, sizeof(w));
@@ -184,12 +188,12 @@ vector<Pixel> VizFlow::Visualize() {
 }
 
 static VizFlow g_flow;
-
+namespace flo {
 int Open(const char *file) {
   try {
     VizFlow flow(file);
     g_flow = flow;
-  } catch (const runtime_error &ex) {
+  } catch (const std::runtime_error &ex) {
     return -1;
   }
   return 0;
@@ -210,3 +214,5 @@ int Info(int *w, int *h, void *info) {
   if (h) *h = g_flow.GetHeight();
   return 0;
 }
+}  // namespace flo
+}  // namespace mt

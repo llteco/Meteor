@@ -1,6 +1,14 @@
+/****************************************
+ * Copyright (c) 2019 Wenyi Tang
+ * Author: Wenyi Tang
+ * E-mail: wenyitang@outlook.com
+ * Description: Main UI framework
+ ****************************************/
 #include <algorithm>
 #include "meteor/ui/ui_window.h"
 
+namespace mt {
+namespace ui {
 PlayerInfo PlayerPannel(const PlayerArgs &args) {
   static PlayerInfo info{};
   ImGui::Begin(__FILE__, nullptr,
@@ -106,3 +114,5 @@ PlayerInfo PlayerPannel(const PlayerArgs &args) {
   ImGui::End();
   return info;
 }
+}  // namespace ui
+}  // namespace mt

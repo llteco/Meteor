@@ -1,11 +1,19 @@
+/****************************************
+ * Copyright (c) 2019 Wenyi Tang
+ * Author: Wenyi Tang
+ * E-mail: wenyitang@outlook.com
+ * Description:
+ ****************************************/
 #ifndef METEOR_UI_UI_WINDOW_H_
 #define METEOR_UI_UI_WINDOW_H_
 #include <set>
 #include <string>
 #include <vector>
-#include "ll_graphic/engine/engine.h"
 #include "imgui/imgui.h"
+#include "ll_graphic/engine/engine.h"
 
+namespace mt {
+namespace ui {
 constexpr char *kSupportedFormats[] = {
     "Decoder", "RGBA", "ARGB", "YUV", "Y", "NV12", "NV21", "YV12", "YV21",
 };
@@ -222,4 +230,12 @@ PlayerInfo PlayerPannel(const PlayerArgs &args);
 
 void PlayerActualBehave(ll::engine::Env *e, ll::engine::core::Renderer *r,
                         const PlayerInfo &info, PlayerArgs *args);
+}  // namespace ui
+}  // namespace mt
+
+extern std::string OnButtonOpenFile(std::string pth);
+
+extern std::string OnButtonSaveFile(std::string);
+
+extern std::vector<std::string> OnButtonOpenFile();
 #endif  // METEOR_UI_UI_WINDOW_H_

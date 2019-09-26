@@ -1,8 +1,7 @@
 #include <algorithm>
 #include "meteor/ui/ui_window.h"
-
-extern std::string OnButtonOpenFile(std::string pth);
-
+namespace mt {
+namespace ui {
 ExpInfo ExpPanel(const ExpArgs &args) {
   static ExpInfo ret_info{};
   ret_info.toggle_open = false;
@@ -178,3 +177,6 @@ ExpInfo ExpPanel(const ExpArgs &args) {
   ImGui::End();
   return ret_info;
 }
+
+}  // namespace ui
+}  // namespace mt

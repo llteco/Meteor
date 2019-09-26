@@ -1,5 +1,11 @@
+/****************************************
+ * Copyright (c) 2019 Wenyi Tang
+ * Author: Wenyi Tang
+ * E-mail: wenyitang@outlook.com
+ * Description:
+ ****************************************/
 #include "meteor/core/pic_loader.h"
-
+namespace mt {
 PicLoader::PicLoader(std::string path, const Decoder &d)
     : Loader(path), d_(d) {}
 
@@ -26,3 +32,4 @@ std::vector<char> PicLoader::ReadF() {
   fp_.read(buf.data(), buf.size());
   return std::move(d_.Decode(buf));
 }
+}  // namespace mt

@@ -1,0 +1,5 @@
+0.0.3
+
+# Changelog v0.0.3
+- Start to write Changelog
+- Move FLO and PNG decoder into builtin

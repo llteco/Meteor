@@ -1,9 +1,15 @@
+/****************************************
+ * Copyright (c) 2019 Wenyi Tang
+ * Author: Wenyi Tang
+ * E-mail: wenyitang@outlook.com
+ * Description:
+ ****************************************/
 #ifndef METEOR_CORE_PIC_LOADER_H_
 #define METEOR_CORE_PIC_LOADER_H_
 #include "meteor/core/decoder.h"
 #include "meteor/core/loader.h"
 
-
+namespace mt {
 class PicLoader : public Loader {
  public:
   PicLoader(std::string path, const Decoder &d);
@@ -21,7 +27,9 @@ class PicLoader : public Loader {
   virtual int Length() override;
 
   virtual std::vector<char> ReadF() override;
+
  private:
   Decoder d_;
 };
+}  // namespace mt
 #endif  // METEOR_CORE_PIC_LOADER_H_

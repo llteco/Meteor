@@ -8,14 +8,30 @@
             "type": "shell",
             "command": "python",
             "args": [
-                "${workspaceRoot}/third-party/protect_header.py",
+                "${workspaceFolder}/scripts/tools/protect_header.py",
                 "--prefix=",
-                "--root=${workspaceRoot}",
+                "--root=${workspaceFolder}",
                 "${fileDirname}"
             ],
             "group": "none",
             "presentation": {
                 "reveal": "never"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "format",
+            "type": "shell",
+            "command": "python",
+            "args": [
+                "${workspaceFolder}/scripts/tools/format_all.py",
+                "--formatter=${config:clang-format.executable}",
+                "--style=${config:clang-format.style}",
+                "${fileDirname}"
+            ],
+            "group": "none",
+            "presentation": {
+                "reveal": "always"
             },
             "problemMatcher": []
         },
@@ -27,7 +43,7 @@
                 "--output=vs7",
                 "--linelength=80",
                 "--exclude=Build,config.h",
-                "--filter=-build/header_guard,-build/c++11,-build/c++14",
+                "--filter=-build/header_guard,-build/c++17",
                 "${file}"
             ],
             "group": "none",

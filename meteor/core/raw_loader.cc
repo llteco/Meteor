@@ -1,5 +1,12 @@
+/****************************************
+ * Copyright (c) 2019 Wenyi Tang
+ * Author: Wenyi Tang
+ * E-mail: wenyitang@outlook.com
+ * Description:
+ ****************************************/
 #include "meteor/core/raw_loader.h"
 
+namespace mt {
 RawLoader::RawLoader(std::string path, float cbytes, int width, int height)
     : Loader(path) {
   Change(cbytes, width, height);
@@ -43,3 +50,4 @@ std::vector<char> RawLoader::ReadF() {
   fp_.read(buf.data(), frame_size_);
   return std::move(buf);
 }
+}  // namespace mt

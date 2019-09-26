@@ -3,13 +3,14 @@
 #include <memory>
 #include <string>
 #include <vector>
-
+#include "meteor/builtin/builtin.h"
 
 typedef int (*mpOpen)(const char *file);
 typedef int (*mpClose)();
 typedef int (*mpRun)(const char *bytes, char *image);
 typedef int (*mpInfo)(int *w, int *h, void *info);
 
+namespace mt {
 class Decoder {
  public:
   Decoder();
@@ -32,4 +33,5 @@ class Decoder {
   } info_;
   void *dlib_;
 };
+}  // namespace mt
 #endif  // METEOR_CORE_DECODER_H_

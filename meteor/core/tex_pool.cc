@@ -1,8 +1,16 @@
+/****************************************
+ * Copyright (c) 2019 Wenyi Tang
+ * Author: Wenyi Tang
+ * E-mail: wenyitang@outlook.com
+ * Description:
+ ****************************************/
 #include "meteor/core/tex_pool.h"
+
 using namespace ll::engine;
 
-TexPool::TexPool(ll::engine::Env *env, ll::engine::core::Renderer *renderer,
-                 int width, int height, int cmode) {
+namespace mt {
+TexPool::TexPool(Env *env, core::Renderer *renderer, int width, int height,
+                 int cmode) {
   env_ = env;
   rdr_ = renderer;
   for (int i = 0; i < 1; i++) {
@@ -29,3 +37,4 @@ void TexPool::Update(char *data) {
   { stg_[0]->Map(TEX_MAP_WRITE)->UpdateFromRawData(data); }
   stg_[0]->CopyTo(tex_);
 }
+}  // namespace mt

@@ -1,11 +1,18 @@
-#include "export.h"
-#include "png.h"
-#include "zlib.h"
+/****************************************
+ * Copyright (c) 2019 Wenyi Tang
+ * Author: Wenyi Tang
+ * E-mail: wenyitang@outlook.com
+ * Description: PNG decoder
+ ****************************************/
+#include <png.h>
+#include <zlib.h>
 #include <string>
+#include "meteor/builtin/builtin.h"
 
+namespace mt {
 
 static std::string gFileName;
-
+namespace png {
 int Open(const char *file) {
   gFileName = file;
   return 0;
@@ -31,3 +38,6 @@ int Info(int *w, int *h, void *info) {
   if (h) *h = img.height;
   return 0;
 }
+}  // namespace png
+
+}  // namespace mt
