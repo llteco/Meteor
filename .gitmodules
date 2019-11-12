@@ -4,3 +4,6 @@
 [submodule "ll_graphic"]
 	path = ll_graphic
 	url = https://github.com/llteco/ll_graphic
+[submodule "ll_codec"]
+	path = ll_codec
+	url = https://github.com/llteco/ll_codec

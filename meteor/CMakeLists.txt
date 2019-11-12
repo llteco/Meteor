@@ -10,7 +10,7 @@ file(GLOB_RECURSE LODE ${CMAKE_CURRENT_SOURCE_DIR}/lodepng/*.cpp ${CMAKE_CURRENT
 
 add_subdirectory(builtin)
 add_executable(meteor ${CORE} ${UI} ${LODE})
-target_link_libraries(meteor builtin imgui ixr_engine)
+target_link_libraries(meteor builtin imgui ixr_engine ixr_codec)
 
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/ui/mt_config.in
